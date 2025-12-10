@@ -1,0 +1,481 @@
+import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
+import { View, Text, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Alert, Pressable, Keyboard } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@/constants/theme';
+import { useNavigation } from '@react-navigation/native';
+import { InputBox } from '@/components';
+
+// Move constants outside component
+const INITIAL_MESSAGES = [
+    {
+        id: '1',
+        text: 'Hello! How can I help you today?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3600000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '2',
+        text: 'Hi, I\'ve been feeling anxious lately and would like some guidance.',
+        sender: 'customer',
+        timestamp: new Date(Date.now() - 3500000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '3',
+        text: 'I understand. Let\'s start by exploring what might be triggering these feelings. Can you tell me more about when you typically feel anxious?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3400000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '4',
+        text: 'It usually happens in social situations or when I have work deadlines.',
+        sender: 'customer',
+        timestamp: new Date(Date.now() - 3300000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '5',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+    {
+        id: '6',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+    {
+        id: '7',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+    {
+        id: '8',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'customer',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+];
+
+const AI_RESPONSES = [
+    "I understand how you're feeling. Let's work through this together.",
+    "That's a common concern. Many people experience similar thoughts.",
+    "Thank you for sharing that with me. It takes courage to open up.",
+    "Let me help you explore some coping strategies for that situation.",
+    "I'm here to support you. Would you like to discuss this further?"
+];
+
+const MESSAGE_ACTIONS = [
+    { icon: 'copy', label: 'Copy', action: 'copy' },
+    { icon: 'arrow-redo', label: 'Forward', action: 'forward' },
+    { icon: 'arrow-undo', label: 'Reply', action: 'reply' },
+    { icon: 'checkbox', label: 'Select', action: 'select' },
+    { icon: 'trash', label: 'Delete', action: 'delete', destructive: true },
+];
+
+// Move helper function outside component
+const formatTime = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
+// Memoized MessageBubble component
+const MessageBubble = memo(({ message, onLongPress }) => {
+    const isCustomer = useMemo(() => message.sender === 'customer', [message.sender]);
+    const formattedTime = useMemo(() => formatTime(message.timestamp), [message.timestamp]);
+
+    return (
+        <TouchableOpacity
+            onLongPress={onLongPress}
+            delayLongPress={500}
+            className={`max-w-[80%] mb-3 ${isCustomer ? 'self-end' : 'self-start'}`}
+        >
+            <View
+                className={`rounded-2xl p-3 ${isCustomer
+                    ? 'bg-themeColor rounded-br-md'
+                    : 'bg-gray-100 rounded-bl-md'
+                    }`}
+            >
+                <Text className={`text-sm ${isCustomer ? 'text-white' : 'text-slate-800'
+                    } font-InterRegular`}>
+                    {message.text}
+                </Text>
+            </View>
+
+            <View className={`flex-row items-center gap-1 mt-1 ${isCustomer ? 'justify-end' : 'justify-start'
+                }`}>
+                <Text className="text-gray-400 text-xs font-InterRegular">
+                    {formattedTime}
+                </Text>
+                {isCustomer && (
+                    <Ionicons
+                        name={message.read ? "checkmark-done" : "checkmark"}
+                        size={12}
+                        color={message.read ? COLORS.themeColor : "#9CA3AF"}
+                    />
+                )}
+            </View>
+        </TouchableOpacity>
+    );
+});
+
+// Memoized MessageActionSheet component
+const MessageActionSheet = memo(({ selectedMessage, onClose, onAction }) => {
+    if (!selectedMessage) return null;
+
+    return (
+        <View className="absolute inset-0 bg-black/50 justify-end">
+            <TouchableOpacity
+                className="flex-1"
+                onPress={onClose}
+            />
+
+            <View className="bg-white rounded-t-3xl p-4">
+                <View className="w-12 h-1 bg-gray-300 rounded-full self-center mb-4" />
+
+                <Text className="font-InterMedium text-gray-500 text-center mb-4">
+                    Message Options
+                </Text>
+
+                <View className="bg-gray-50 rounded-xl p-3 mb-3">
+                    <Text className="font-InterRegular text-slate-700 text-sm">
+                        {selectedMessage.text}
+                    </Text>
+                </View>
+
+                <View className="flex-row justify-between">
+                    {MESSAGE_ACTIONS.map((item) => (
+                        <TouchableOpacity
+                            key={item.action}
+                            className="items-center py-2 flex-1"
+                            onPress={() => onAction(item.action, selectedMessage)}
+                        >
+                            <View className={`w-12 h-12 rounded-full items-center justify-center mb-1 ${item.destructive ? 'bg-red-100' : 'bg-purple-100'
+                                }`}>
+                                <Ionicons
+                                    name={item.icon}
+                                    size={20}
+                                    color={item.destructive ? '#EF4444' : COLORS.themeColor}
+                                />
+                            </View>
+                            <Text className={`font-InterMedium text-xs ${item.destructive ? 'text-red-600' : 'text-slate-700'
+                                }`}>
+                                {item.label}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+                <TouchableOpacity
+                    className="bg-white border border-gray-200 rounded-xl py-4 mt-3"
+                    onPress={onClose}
+                >
+                    <Text className="font-InterSemiBold text-slate-800 text-center">
+                        Cancel
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+});
+
+// Memoized ChatHeader component
+const ChatHeader = memo(({ host, onBack }) => {
+    return (
+        <View className="bg-white relative z-10 border-b border-gray-200 px-4 py-4 flex-row items-center justify-between">
+            <Pressable className='p-2 rounded-full active:bg-white/10' onPress={onBack}>
+                <Ionicons name="arrow-back" size={20} color={COLORS.themeColor} />
+            </Pressable>
+            <View className="flex-row items-center gap-3">
+                <View className="w-10 h-10 rounded-full bg-themeColor/10 items-center justify-center">
+                    <Ionicons name="person" size={20} color={COLORS.themeColor} />
+                </View>
+
+                <View className="flex-1">
+                    <Text className="font-InterBold text-slate-800 text-base">
+                        {host.name}
+                    </Text>
+                    <Text className="font-InterRegular text-green-600 text-xs">
+                        {host.isOnline ? 'Online' : 'Offline'}
+                    </Text>
+                </View>
+
+                <View className="flex-row gap-4">
+                    <TouchableOpacity>
+                        <Ionicons name="videocam" size={24} color={COLORS.themeColor} />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Ionicons name="call" size={24} color={COLORS.themeColor} />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Ionicons name="ellipsis-vertical" size={20} color={COLORS.grey} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+    );
+});
+
+export default function ChatScreen({ route }) {
+    const { host, customer, chatType = 'user' } = route?.params || {};
+    const navigation = useNavigation();
+
+    const [messages, setMessages] = useState(INITIAL_MESSAGES);
+    const [newMessage, setNewMessage] = useState('');
+    const [selectedMessage, setSelectedMessage] = useState(null);
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const flatListRef = useRef(null);
+    const timeoutRef = useRef(null);
+
+    // Memoize chatData
+    const chatData = useMemo(() => ({
+        host: host || {
+            id: 'host_1',
+            name: 'Dr. Sarah Chen',
+            type: 'counselor',
+            avatar: null,
+            isOnline: true,
+            specialty: 'Anxiety & Stress Management'
+        },
+        customer: customer || {
+            id: 'customer_1',
+            name: 'You',
+            type: 'user',
+            avatar: null
+        },
+        chatType: chatType
+    }), [host, customer, chatType]);
+
+    // Track keyboard visibility with keyboard listeners for accurate timing
+    useEffect(() => {
+        const showSubscription = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+            () => {
+                setIsKeyboardVisible(true);
+            }
+        );
+
+        const hideSubscription = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+            () => {
+                setIsKeyboardVisible(false);
+            }
+        );
+
+        return () => {
+            showSubscription.remove();
+            hideSubscription.remove();
+        };
+    }, []);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Memoize sendMessage
+    const sendMessage = useCallback(() => {
+        if (newMessage.trim() === '') return;
+
+        const message = {
+            id: Date.now().toString(),
+            text: newMessage.trim(),
+            sender: 'customer',
+            timestamp: new Date(),
+            type: 'text',
+            read: false
+        };
+
+        setMessages(prev => [...prev, message]);
+        setNewMessage('');
+
+        // Simulate AI/Counselor response after 2 seconds
+        if (chatData.chatType === 'ai_chat' || chatData.chatType === 'user') {
+            // Clear any existing timeout
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+
+            timeoutRef.current = setTimeout(() => {
+                const aiResponse = {
+                    id: (Date.now() + 1).toString(),
+                    text: AI_RESPONSES[Math.floor(Math.random() * AI_RESPONSES.length)],
+                    sender: 'host',
+                    timestamp: new Date(),
+                    type: 'text',
+                    read: false
+                };
+
+                setMessages(prev => [...prev, aiResponse]);
+            }, 2000);
+        }
+    }, [newMessage, chatData.chatType]);
+
+    // Memoize handleMessageLongPress
+    const handleMessageLongPress = useCallback((message) => {
+        setSelectedMessage(message);
+    }, []);
+
+    // Memoize handleMessageAction
+    const handleMessageAction = useCallback((action, message) => {
+        setSelectedMessage(null);
+
+        switch (action) {
+            case 'copy':
+                Alert.alert('Copied', 'Message copied to clipboard');
+                break;
+            case 'forward':
+                Alert.alert('Forward', 'Forward message functionality');
+                break;
+            case 'reply':
+                setNewMessage(`Replying to: "${message.text}" `);
+                break;
+            case 'select':
+                Alert.alert('Select', 'Select multiple messages');
+                break;
+            case 'delete':
+                Alert.alert('Delete', 'Delete this message?', [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: () => {
+                            setMessages(prev => prev.filter(msg => msg.id !== message.id));
+                        }
+                    }
+                ]);
+                break;
+        }
+    }, []);
+
+    // Memoize handleCloseActionSheet
+    const handleCloseActionSheet = useCallback(() => {
+        setSelectedMessage(null);
+    }, []);
+
+    // Memoize handleBack
+    const handleBack = useCallback(() => {
+        navigation.goBack();
+    }, [navigation]);
+
+    // Memoize FlatList renderItem
+    const renderMessage = useCallback(({ item }) => (
+        <MessageBubble
+            message={item}
+            onLongPress={() => handleMessageLongPress(item)}
+        />
+    ), [handleMessageLongPress]);
+
+    // Memoize keyExtractor
+    const keyExtractor = useCallback((item) => item.id, []);
+
+    // Memoize scroll handlers
+    const handleContentSizeChange = useCallback(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+    }, []);
+
+    const handleLayout = useCallback(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+    }, []);
+
+    // Memoize send button style
+    const sendButtonStyle = useMemo(() => 
+        newMessage.trim() ? 'bg-themeColor' : 'bg-gray-200',
+        [newMessage]
+    );
+
+    const sendIconColor = useMemo(() => 
+        newMessage.trim() ? 'white' : COLORS.grey,
+        [newMessage]
+    );
+
+    return (
+        <View className='flex-1'>
+            <ChatHeader host={chatData.host} onBack={handleBack} />
+
+            <KeyboardAvoidingView
+                className="flex-1"
+                behavior='padding'
+                keyboardVerticalOffset={isKeyboardVisible ? (Platform.OS === 'ios' ? 100 : 25) : 0}
+            >
+                {/* Messages List */}
+                <View className="flex-1 bg-gray-50">
+                    <FlatList
+                        ref={flatListRef}
+                        data={messages}
+                        keyExtractor={keyExtractor}
+                        renderItem={renderMessage}
+                        className="px-4 py-5"
+                        contentContainerStyle={{ paddingBottom: 20 }}
+                        showsVerticalScrollIndicator={false}
+                        onContentSizeChange={handleContentSizeChange}
+                        onLayout={handleLayout}
+                        removeClippedSubviews={true}
+                        maxToRenderPerBatch={10}
+                        windowSize={10}
+                        initialNumToRender={10}
+                    />
+                </View>
+
+                {/* Input Area */}
+                <View className="bg-white border-t border-gray-200 px-4 py-3">
+                    <View className="flex-row items-center gap-2">
+                        <TouchableOpacity className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
+                            <Ionicons name="add" size={20} color={COLORS.grey} />
+                        </TouchableOpacity>
+
+                        <View className="flex-1">
+                            <InputBox
+                                value={newMessage}
+                                setValue={setNewMessage}
+                                placeholder="Type a message..."
+                                multiline
+                            />
+                        </View>
+
+                        <TouchableOpacity
+                            className={`w-10 h-10 rounded-full items-center justify-center ${sendButtonStyle}`}
+                            onPress={sendMessage}
+                            disabled={!newMessage.trim()}
+                        >
+                            <Ionicons
+                                name="send"
+                                size={18}
+                                color={sendIconColor}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+
+            {/* Message Action Sheet */}
+            <MessageActionSheet
+                selectedMessage={selectedMessage}
+                onClose={handleCloseActionSheet}
+                onAction={handleMessageAction}
+            />
+        </View>
+    );
+}

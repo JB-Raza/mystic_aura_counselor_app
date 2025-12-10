@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "mysticAura",
+    "slug": "jahanzaib",
+    "version": "1.0.0",
+    "web": {
+      "favicon": "./assets/icon.jpg"
+    },
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "plugins": [],
+    "orientation": "portrait",
+    "icon": "./assets/icon.jpg",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.anonymous.mysticaura"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e8f91b06-c88a-49cd-82bc-dc0fe0bec9fe"
+      }
+    },
+    "owner": "jahanzaib93202"
+  }
+}

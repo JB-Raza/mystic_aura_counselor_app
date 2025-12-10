@@ -1,0 +1,35 @@
+using tabs instead of scrollview in councelor profile for sections
+
+
+
+Book appointment workflow
+swipeable functionality on councelor profile section. (make a custom component that can have as many horizontal sections as i want [which will be used in user profile and councelor profile too] with swipeable sections)
+
+
+--task list for today:
+add coins workflow
+possibly add redux 
+
+
+
+quick help floating btn - chat with AI screen-----------------------
+
+
+home screen for councelors -----------------------------------------
+bidding by concelor on user issues (screens) -----------------------
+councelor dashboard (earning, sessions stats, rating, showing clients served, current clients, new clients (filter all these in signle table))
+favourite doctors screen-------------------------------------------- 
+
+
+
+
+
+
+
+
+
+Hi I am working on react native app. The app is a counceling platform where users with different mental problems will come and get councelling guidelines. App has 2 sides (councelor side and user side). currently i am working on user side. I am using nativewind for styling and the theme of my app is COLORS.themeColor as theme color(export const COLORS = {themeColor: "#6C63FF",lightThemeColor: "#C4C0FF",success: "#10B981",background: "#000000",grey: "#9CA3AF"}) and bg-gray-50 as background. Hope you understood my app 
+make me a loader component that uses a very modern looking UI. it can be something like a brain creation or anything mistical that suites apps like mystic Aura. also it should be like an svg animating in a line like form or anything.
+
+
+testing app with maestro
