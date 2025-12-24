@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
-import { View, Text, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Alert, Pressable, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Keyboard, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { InputBox } from '@/components';
 import { Toast } from 'toastify-react-native';
 
-// Move helper function outside component
 const formatTime = (timestamp) => {
     return new Date(timestamp).toLocaleTimeString([], {
         hour: '2-digit',
@@ -14,7 +13,6 @@ const formatTime = (timestamp) => {
     });
 };
 
-// Memoized MessageBubble component
 const MessageBubble = memo(({ message, onLongPress }) => {
     const isCustomer = useMemo(() => message.sender === 'customer', [message.sender]);
     const formattedTime = useMemo(() => formatTime(message.timestamp), [message.timestamp]);
@@ -54,7 +52,6 @@ const MessageBubble = memo(({ message, onLongPress }) => {
     );
 });
 
-// Memoized MessageActionSheet component
 const MessageActionSheet = memo(({ selectedMessage, onClose, onAction }) => {
     if (!selectedMessage) return null;
 
@@ -114,36 +111,34 @@ const MessageActionSheet = memo(({ selectedMessage, onClose, onAction }) => {
     );
 });
 
-// Memoized ChatHeader component
 const ChatHeader = memo(({ host, onBack }) => {
     return (
         <View className="bg-white relative z-10 border-b border-gray-200 px-4 py-4 flex-row items-center justify-between">
             <Pressable className='p-2 rounded-full active:bg-white/10' onPress={onBack}>
                 <Ionicons name="arrow-back" size={20} color={COLORS.themeColor} />
             </Pressable>
-            <View className="flex-row items-center gap-3">
-                <View className="w-10 h-10 rounded-full bg-themeColor/10 items-center justify-center">
-                    <Ionicons name="person" size={20} color={COLORS.themeColor} />
+            <View className="flex-row flex-1 justify-between items-center gap-3">
+                <View className='flex-1 flex-row gap-2'>
+                    <View className="w-10 h-10 rounded-full bg-themeColor/10 items-center justify-center">
+                        <Ionicons name="person" size={20} color={COLORS.themeColor} />
+                    </View>
+
+                    <View className="">
+                        <Text className="font-InterBold text-slate-800 text-base" maxLength={15}>
+                            {host.name}
+                        </Text>
+                        <Text className="font-InterRegular text-green-600 text-xs">
+                            {host.isOnline ? 'Online' : 'Offline'}
+                        </Text>
+                    </View>
                 </View>
 
-                <View className="flex-1">
-                    <Text className="font-InterBold text-slate-800 text-base">
-                        {host.name}
-                    </Text>
-                    <Text className="font-InterRegular text-green-600 text-xs">
-                        {host.isOnline ? 'Online' : 'Offline'}
-                    </Text>
-                </View>
-
-                <View className="flex-row gap-4">
+                <View className="flex-row flex- justify-end gap-3">
                     <TouchableOpacity>
                         <Ionicons name="videocam" size={24} color={COLORS.themeColor} />
                     </TouchableOpacity>
                     <TouchableOpacity>
                         <Ionicons name="call" size={24} color={COLORS.themeColor} />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Ionicons name="ellipsis-vertical" size={20} color={COLORS.grey} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -158,9 +153,9 @@ export default function ChatScreen({ route }) {
     const [messages, setMessages] = useState(INITIAL_MESSAGES);
     const [newMessage, setNewMessage] = useState('');
     const [selectedMessage, setSelectedMessage] = useState(null);
-    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-    const flatListRef = useRef(null);
-    const timeoutRef = useRef(null);
+    const messagesFlatListRef = useRef(null);
+    const aiResponseTimeoutRef = useRef(null);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
 
     // Memoize chatData
     const chatData = useMemo(() => ({
@@ -181,38 +176,31 @@ export default function ChatScreen({ route }) {
         chatType: chatType
     }), [host, customer, chatType]);
 
-    // Track keyboard visibility with keyboard listeners for accurate timing
-    useEffect(() => {
-        const showSubscription = Keyboard.addListener(
-            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-            () => {
-                setIsKeyboardVisible(true);
-            }
-        );
-
-        const hideSubscription = Keyboard.addListener(
-            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-            () => {
-                setIsKeyboardVisible(false);
-            }
-        );
-
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
-    }, []);
-
     // Cleanup timeout on unmount
     useEffect(() => {
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+            if (aiResponseTimeoutRef.current) {
+                clearTimeout(aiResponseTimeoutRef.current);
             }
         };
     }, []);
 
-    // Memoize sendMessage
+    // scroll to end when a new message added
+    useEffect(() => {
+        if (!messagesFlatListRef.current) return;
+
+        messagesFlatListRef.current?.scrollToEnd({ animated: true });
+    }, [messages.length]);
+
+    const handleContentSizeChange = () => {
+        setTimeout(() => {
+
+            messagesFlatListRef.current?.scrollToEnd({ animated: true });
+        }, 300);
+    }
+
+
+
     const sendMessage = useCallback(() => {
         if (newMessage.trim() === '') return;
 
@@ -231,11 +219,11 @@ export default function ChatScreen({ route }) {
         // Simulate AI/Counselor response after 2 seconds
         if (chatData.chatType === 'ai_chat' || chatData.chatType === 'user') {
             // Clear any existing timeout
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+            if (aiResponseTimeoutRef.current) {
+                clearTimeout(aiResponseTimeoutRef.current);
             }
 
-            timeoutRef.current = setTimeout(() => {
+            aiResponseTimeoutRef.current = setTimeout(() => {
                 const aiResponse = {
                     id: (Date.now() + 1).toString(),
                     text: AI_RESPONSES[Math.floor(Math.random() * AI_RESPONSES.length)],
@@ -250,12 +238,10 @@ export default function ChatScreen({ route }) {
         }
     }, [newMessage, chatData.chatType]);
 
-    // Memoize handleMessageLongPress
     const handleMessageLongPress = useCallback((message) => {
         setSelectedMessage(message);
     }, []);
 
-    // Memoize handleMessageAction
     const handleMessageAction = useCallback((action, message) => {
         setSelectedMessage(null);
 
@@ -282,35 +268,23 @@ export default function ChatScreen({ route }) {
                 });
                 break;
             case 'delete':
-                Alert.alert('Delete', 'Delete this message?', [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                        text: 'Delete',
-                        style: 'destructive',
-                        onPress: () => {
-                            setMessages(prev => prev.filter(msg => msg.id !== message.id));
-                            Toast.show({
-                                type: "success",
-                                text2: "Message deleted"
-                            });
-                        }
-                    }
-                ]);
+                setMessages(prev => prev.filter(msg => msg.id !== message.id));
+                Toast.show({
+                    type: "success",
+                    text2: "Message deleted!"
+                });
                 break;
         }
     }, []);
 
-    // Memoize handleCloseActionSheet
     const handleCloseActionSheet = useCallback(() => {
         setSelectedMessage(null);
     }, []);
 
-    // Memoize handleBack
     const handleBack = useCallback(() => {
         navigation.goBack();
     }, [navigation]);
 
-    // Memoize FlatList renderItem
     const renderMessage = useCallback(({ item }) => (
         <MessageBubble
             message={item}
@@ -318,21 +292,7 @@ export default function ChatScreen({ route }) {
         />
     ), [handleMessageLongPress]);
 
-    // Memoize keyExtractor
-    const keyExtractor = useCallback((item) => item.id, []);
 
-    // Memoize scroll handlers
-    const handleContentSizeChange = useCallback((width, height) => {
-        console.log("reached in content size")
-        flatListRef.current?.scrollToEnd({ animated: true });
-    }, []);
-
-    const handleLayout = useCallback((event) => {
-        console.log("reached in layout size")
-        flatListRef.current?.scrollToEnd({ animated: false });
-    }, []);
-
-    // Memoize send button style
     const sendButtonStyle = useMemo(() =>
         newMessage.trim() ? 'bg-themeColor' : 'bg-gray-200',
         [newMessage]
@@ -343,63 +303,80 @@ export default function ChatScreen({ route }) {
         [newMessage]
     );
 
+    useEffect(() => {
+        if (Platform.OS !== 'android') return;
+
+        const showSub = Keyboard.addListener('keyboardDidShow', e => {
+            setKeyboardHeight(e.endCoordinates.height + 60);
+        });
+
+        const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardHeight(0);
+        });
+
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
+
+
     return (
         <View className='flex-1'>
             <ChatHeader host={chatData.host} onBack={handleBack} />
 
             <KeyboardAvoidingView
                 className="flex-1"
-                behavior='padding'
-                keyboardVerticalOffset={isKeyboardVisible ? (Platform.OS === 'ios' ? 100 : 25) : 0}
+                behavior={Platform.OS === 'ios' ? "padding" : undefined}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 130 : undefined}
             >
-                {/* Messages List */}
-                <View className="flex-1 bg-gray-50">
-                    <FlatList
-                        ref={flatListRef}
-                        data={messages}
-                        keyExtractor={keyExtractor}
-                        renderItem={renderMessage}
-                        className="px-4 py-5"
-                        contentContainerStyle={{ paddingBottom: 20 }}
-                        showsVerticalScrollIndicator={false}
-                        onContentSizeChange={handleContentSizeChange}
-                        onLayout={handleLayout}
-//                         removeClippedSubviews={true}
-                        maxToRenderPerBatch={10}
-                        windowSize={10}
-                        initialNumToRender={10}
-                    />
-                </View>
+                <View className='flex-1 justify-between'>
+                    {/* Messages List */}
+                    <View className="flex-1 bg-gray-50">
+                        <FlatList
+                            ref={messagesFlatListRef}
+                            data={messages}
+                            scrollToEnd={true}
+                            keyExtractor={(item) => item.id}
+                            renderItem={renderMessage}
+                            className="px-4 py-5"
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                            showsVerticalScrollIndicator={false}
+                            onContentSizeChange={handleContentSizeChange}
+                        />
+                    </View>
 
-                {/* Input Area */}
-                <View className="bg-white border-t border-gray-200 px-4 py-3">
-                    <View className="flex-row items-center gap-2">
-                        <TouchableOpacity className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
-                            <Ionicons name="add" size={20} color={COLORS.grey} />
-                        </TouchableOpacity>
+                    {/* Input Area */}
+                    <View className={`bg-white border-t border-gray-200 px-4 pt-3`} style={{ paddingBottom: keyboardHeight || 10 }}>
+                        <View className="flex-row items-center gap-2">
+                            <TouchableOpacity className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
+                                <Ionicons name="add" size={20} color={COLORS.grey} />
+                            </TouchableOpacity>
 
-                        <View className="flex-1">
-                            <InputBox
-                                value={newMessage}
-                                setValue={setNewMessage}
-                                placeholder="Type a message..."
-                                multiline
-                            />
+                            <View className="flex-1">
+                                <InputBox
+                                    value={newMessage}
+                                    setValue={setNewMessage}
+                                    placeholder="Type a message..."
+                                    multiline
+                                />
+                            </View>
+
+                            <TouchableOpacity
+                                className={`w-10 h-10 rounded-full items-center justify-center ${sendButtonStyle}`}
+                                onPress={sendMessage}
+                                disabled={!newMessage.trim()}
+                            >
+                                <Ionicons
+                                    name="send"
+                                    size={18}
+                                    color={sendIconColor}
+                                />
+                            </TouchableOpacity>
                         </View>
-
-                        <TouchableOpacity
-                            className={`w-10 h-10 rounded-full items-center justify-center ${sendButtonStyle}`}
-                            onPress={sendMessage}
-                            disabled={!newMessage.trim()}
-                        >
-                            <Ionicons
-                                name="send"
-                                size={18}
-                                color={sendIconColor}
-                            />
-                        </TouchableOpacity>
                     </View>
                 </View>
+
             </KeyboardAvoidingView>
 
             {/* Message Action Sheet */}
