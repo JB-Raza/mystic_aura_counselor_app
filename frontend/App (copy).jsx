@@ -79,14 +79,14 @@ export default function App() {
         await loadFonts();
         
         // Hide native splash screen immediately after fonts load
-            await SplashScreen.hideAsync();
+//         await SplashScreen.hideAsync();
 
         // Mark app as ready (custom splash will handle its own timing)
         setAppIsReady(true);
       } catch (e) {
         console.warn(e);
         // Even if there's an error, hide native splash and mark ready
-        await SplashScreen.hideAsync();
+//         await SplashScreen.hideAsync();
         setAppIsReady(true);
       }
     }

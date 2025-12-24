@@ -12,8 +12,6 @@ import { isFavorite, toggleFavorite } from '@/utils/favoritesUtils';
 import { Toast } from 'toastify-react-native';
 import { IMAGES } from '@/constants/images';
 import ROUTES from '@/constants/routes';
-import PagerView from 'react-native-pager-view'
-
 const BookServiceBottomSheet = lazy(() => import('@/components/BookServiceBottomSheet'))
 
 
@@ -37,7 +35,6 @@ export default function CouncelorProfile({ route }) {
 
   const bookServiceBottomSheetRef = useRef()
   const horizontalScrollRef = useRef(null)
-  const pagerViewRef = useRef(null)
 
   // Memoize loadFavoriteStatus to prevent recreation
   const loadFavoriteStatus = useCallback(async () => {
@@ -106,18 +103,33 @@ export default function CouncelorProfile({ route }) {
     navigation.navigate(screenName)
   }, [navigation])
 
-  // Handle page selection from PagerView
-  const handlePageSelected = useCallback((event) => {
-    const selectedIndex = event.nativeEvent.position
-    if (selectedIndex !== activeTabIndex && selectedIndex >= 0 && selectedIndex < TABS.length) {
-      setActiveTabIndex(selectedIndex)
+  // const handleTabPress = useCallback((index) => {
+  //   setActiveTabIndex(index)
+  //   console.log("ref -- ", horizontalScrollRef)
+  //   if (horizontalScrollRef.current) {
+
+  //     horizontalScrollRef.current?.scrollTo({
+  //       x: index * SCREEN_WIDTH,
+  //       animated: true
+  //     })
+  //   }
+  // }, [])
+
+  // handling click tab to switch between tabs
+  useEffect(() => {
+    console.log("ref -- ", horizontalScrollRef)
+    if (horizontalScrollRef.current) {
+      horizontalScrollRef.current?.scrollTo({
+        x: activeTabIndex * SCREEN_WIDTH,
+        animated: true
+      })
     }
   }, [activeTabIndex])
 
-  // Handle tab press - navigate PagerView to selected page
-  const handleTabPress = useCallback((index) => {
-    if (pagerViewRef.current && index !== activeTabIndex) {
-      pagerViewRef.current.setPage(index)
+  const handleScroll = useCallback((event) => {
+    const offsetX = event.nativeEvent.contentOffset.x
+    const index = Math.round(offsetX / SCREEN_WIDTH)
+    if (index !== activeTabIndex && index >= 0 && index < TABS.length) {
       setActiveTabIndex(index)
     }
   }, [activeTabIndex])
@@ -257,7 +269,8 @@ export default function CouncelorProfile({ route }) {
             {TABS.map((tab, index) => (
               <Pressable
                 key={tab.id}
-                onPress={() => handleTabPress(index)}
+                // onPress={() => handleTabPress(index)}
+                onPress={() => setActiveTabIndex(index)}
                 className={`flex-1 py-4 items-center relative`}
               >
                 <View className={`flex-row items-center gap-1.5 ${activeTabIndex === index ? '' : 'opacity-60'}`}>
@@ -278,33 +291,31 @@ export default function CouncelorProfile({ route }) {
           </View>
         </View>
 
-        <PagerView
-          ref={pagerViewRef}
-          style={{ flex: 1 }}
-          initialPage={0}
-          onPageSelected={handlePageSelected}
-          onPageScroll={(e) => {
-            console.log(e.nativeEvent.position)
-          }}
+        <ScrollView
+          ref={horizontalScrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          // scrollEventThrottle={16}
+          style={{ width: SCREEN_WIDTH }}
+          className='flex-1'
         >
           {TABS.map((tab, index) => (
-            <View key={index}>
-              <ScrollView
-                key={tab.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 20 }}
-                style={{ width: SCREEN_WIDTH }}
-                // Only render content for active tab or adjacent tabs for smoother scrolling
-                // removeClippedSubviews={index !== activeTabIndex && index !== activeTabIndex - 1 && index !== activeTabIndex + 1}
-                removeClippedSubviews={true}
-              >
-                <View className='bg-gray-50'>
-                  {renderSection(tab.id)}
-                </View>
-              </ScrollView>
-            </View>
+            <ScrollView
+              key={tab.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              style={{ width: SCREEN_WIDTH }}
+              // Only render content for active tab or adjacent tabs for smoother scrolling
+              removeClippedSubviews={index !== activeTabIndex && index !== activeTabIndex - 1 && index !== activeTabIndex + 1}
+            >
+              <View className='bg-gray-50'>
+                {renderSection(tab.id)}
+              </View>
+            </ScrollView>
           ))}
-        </PagerView>
+        </ScrollView>
       </View>
 
       {/* Bottom Sheets */}

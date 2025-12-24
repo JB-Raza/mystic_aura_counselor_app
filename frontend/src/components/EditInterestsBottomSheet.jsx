@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
 import CustomBottomSheet from "./CustomBottomSheet";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { COLORS } from "@/constants/theme";
@@ -30,67 +30,124 @@ const ALL_AVAILABLE_INTERESTS = [
     'Marriage Counseling',
 ];
 
-// Memoized InterestItem component
-const InterestItem = memo(({ interest, isSelected, onToggle }) => (
-    <Pressable
-        onPress={onToggle}
-        className={`rounded-full px-4 py-2.5 flex-row items-center gap-2 border ${isSelected
-            ? 'bg-themeColor border-themeColor'
-            : 'bg-white border-gray-200'
-            } active:opacity-70`}
-        style={{
-            shadowColor: isSelected ? COLORS.themeColor : '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: isSelected ? 0.2 : 0.05,
-            shadowRadius: 4,
-            elevation: isSelected ? 3 : 1,
-        }}
-    >
-        {isSelected && (
-            <Ionicons
-                name="checkmark-circle"
-                size={16}
-                color="white"
-            />
-        )}
-        <Text
-            className={`font-InterSemibold text-[13px] ${isSelected ? 'text-white' : 'text-slate-700'
-                }`}
-        >
-            {interest}
-        </Text>
-    </Pressable>
-));
+// Memoized InterestItem component with display name
+const InterestItem = memo(({ interest, isSelected, onToggle }) => {
+    const shadowStyle = useMemo(() => ({
+        shadowColor: isSelected ? COLORS.themeColor : '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: isSelected ? 0.2 : 0.05,
+        shadowRadius: 4,
+        elevation: isSelected ? 3 : 1,
+    }), [isSelected]);
 
-/**
- * EditInterestsBottomSheet Component
- * 
- * A bottom sheet component for editing user interests.
- * Allows users to select/deselect multiple interests from a predefined list.
- * 
- * @param {Object} props
- * @param {React.Ref} props.ref - Reference to the bottom sheet
- * @param {Function} props.onChange - Callback when bottom sheet state changes
- * @param {Array<string>} props.currentInterests - Currently selected interests
- * @param {Function} props.onSave - Callback function when interests are saved (receives updated interests array)
- */
-export default function EditInterestsBottomSheet({ ref, onChange, currentInterests = [], onSave }) {
+    return (
+        <Pressable
+            onPress={onToggle}
+            className={`rounded-full px-4 py-2.5 flex-row items-center gap-2 border ${isSelected
+                ? 'bg-themeColor border-themeColor'
+                : 'bg-white border-gray-200'
+                } active:opacity-70`}
+            style={shadowStyle}
+        >
+            {isSelected && (
+                <Ionicons
+                    name="checkmark-circle"
+                    size={16}
+                    color="white"
+                />
+            )}
+            <Text
+                className={`font-InterSemibold text-[13px] ${isSelected ? 'text-white' : 'text-slate-700'
+                    }`}
+            >
+                {interest}
+            </Text>
+        </Pressable>
+    );
+}, (prevProps, nextProps) => {
+    // Custom comparison function for better performance
+    return prevProps.interest === nextProps.interest &&
+           prevProps.isSelected === nextProps.isSelected &&
+           prevProps.onToggle === nextProps.onToggle;
+});
+
+InterestItem.displayName = 'InterestItem';
+
+
+// Memoized static content components
+const HeaderSection = memo(() => (
+    <View className="flex-row justify-between items-center mb-6">
+        <View className="flex-row items-center gap-3 flex-1">
+            <View className="bg-themeColor/10 p-2.5 rounded-xl">
+                <Ionicons name="heart" size={20} color={COLORS.themeColor} />
+            </View>
+            <View className="flex-1">
+                <Text className="font-InterBold text-slate-800 text-[18px]">
+                    Edit Interests
+                </Text>
+                <Text className="font-Inter text-gray-500 text-[12px] mt-0.5">
+                    Select topics you're interested in
+                </Text>
+            </View>
+        </View>
+    </View>
+));
+HeaderSection.displayName = 'HeaderSection';
+
+const InfoSection = memo(() => (
+    <View className="bg-blue-50 rounded-2xl p-4 border border-blue-200 mt-2">
+        <View className="flex-row items-start gap-3">
+            <Ionicons name="information-circle" size={18} color={COLORS.themeColor} />
+            <View className="flex-1">
+                <Text className="font-InterSemibold text-slate-800 text-[13px] mb-1">
+                    Why select interests?
+                </Text>
+                <Text className="font-Inter text-gray-600 text-[12px] leading-4">
+                    Your interests help us personalize your experience, recommend relevant counselors, and show you content that matches your wellness goals.
+                </Text>
+            </View>
+        </View>
+    </View>
+));
+InfoSection.displayName = 'InfoSection';
+
+const EditInterestsBottomSheet = ({ ref, onChange, currentInterests = [], onSave }) => {
     // Local state for managing selected interests
     const [selectedInterests, setSelectedInterests] = useState([]);
-
-    // Initialize with current interests when bottom sheet opens
+    
+    // Use ref to track if component is mounted to prevent state updates after unmount
+    const isMountedRef = useRef(true);
+    
     useEffect(() => {
-        if (currentInterests && currentInterests.length > 0) {
-            setSelectedInterests([...currentInterests]);
-        } else {
-            setSelectedInterests([]);
-        }
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    // Initialize with current interests when bottom sheet opens or currentInterests changes
+    useEffect(() => {
+        if (!isMountedRef.current) return;
+        
+        // Use functional update to ensure we get the latest currentInterests
+        setSelectedInterests(prev => {
+            const current = Array.isArray(currentInterests) && currentInterests.length > 0 
+                ? [...currentInterests] 
+                : [];
+            
+            // Only update if different to prevent unnecessary re-renders
+            if (prev.length !== current.length || 
+                prev.some((item, idx) => item !== current[idx])) {
+                return current;
+            }
+            return prev;
+        });
     }, [currentInterests]);
 
-    // Memoize toggleInterest handler
+    // Memoize toggleInterest handler - optimized with Set for O(1) lookup
     const toggleInterest = useCallback((interest) => {
         setSelectedInterests(prev => {
-            if (prev.includes(interest)) {
+            const prevSet = new Set(prev);
+            if (prevSet.has(interest)) {
                 return prev.filter(item => item !== interest);
             } else {
                 return [...prev, interest];
@@ -98,16 +155,28 @@ export default function EditInterestsBottomSheet({ ref, onChange, currentInteres
         });
     }, []);
 
+    // Create a memoized map of toggle handlers to prevent creating new functions on each render
+    const toggleHandlers = useMemo(() => {
+        const handlers = {};
+        ALL_AVAILABLE_INTERESTS.forEach(interest => {
+            handlers[interest] = () => toggleInterest(interest);
+        });
+        return handlers;
+    }, [toggleInterest]);
+
     // Memoize handleSave
     const handleSave = useCallback(() => {
+        if (!isMountedRef.current) return;
+        
         if (onSave) {
             onSave(selectedInterests);
         }
 
+        const count = selectedInterests.length;
         Toast.show({
             type: "success",
-            text2: `${selectedInterests.length} interest${selectedInterests.length !== 1 ? 's' : ''} selected`,
-        })
+            text2: `${count} interest${count !== 1 ? 's' : ''} selected`,
+        });
 
         if (ref?.current) {
             ref.current.close();
@@ -116,7 +185,12 @@ export default function EditInterestsBottomSheet({ ref, onChange, currentInteres
 
     // Memoize handleCancel
     const handleCancel = useCallback(() => {
-        setSelectedInterests(currentInterests ? [...currentInterests] : []);
+        if (!isMountedRef.current) return;
+        
+        const resetInterests = Array.isArray(currentInterests) && currentInterests.length > 0
+            ? [...currentInterests]
+            : [];
+        setSelectedInterests(resetInterests);
 
         if (ref?.current) {
             ref.current.close();
@@ -154,19 +228,7 @@ export default function EditInterestsBottomSheet({ ref, onChange, currentInteres
                     <View className="px-5 pb-6 pt-4">
                         {/* Header Section */}
                         <View className="flex-row justify-between items-center mb-6">
-                            <View className="flex-row items-center gap-3 flex-1">
-                                <View className="bg-themeColor/10 p-2.5 rounded-xl">
-                                    <Ionicons name="heart" size={20} color={COLORS.themeColor} />
-                                </View>
-                                <View className="flex-1">
-                                    <Text className="font-InterBold text-slate-800 text-[18px]">
-                                        Edit Interests
-                                    </Text>
-                                    <Text className="font-Inter text-gray-500 text-[12px] mt-0.5">
-                                        Select topics you're interested in
-                                    </Text>
-                                </View>
-                            </View>
+                            <HeaderSection />
                             <Pressable
                                 onPress={handleCancel}
                                 className="p-2 rounded-full active:bg-gray-100"
@@ -217,7 +279,7 @@ export default function EditInterestsBottomSheet({ ref, onChange, currentInteres
                                             key={interest}
                                             interest={interest}
                                             isSelected={isSelected}
-                                            onToggle={() => toggleInterest(interest)}
+                                            onToggle={toggleHandlers[interest]}
                                         />
                                     );
                                 })}
@@ -225,19 +287,7 @@ export default function EditInterestsBottomSheet({ ref, onChange, currentInteres
                         </View>
 
                         {/* Info Section */}
-                        <View className="bg-blue-50 rounded-2xl p-4 border border-blue-200 mt-2">
-                            <View className="flex-row items-start gap-3">
-                                <Ionicons name="information-circle" size={18} color={COLORS.themeColor} />
-                                <View className="flex-1">
-                                    <Text className="font-InterSemibold text-slate-800 text-[13px] mb-1">
-                                        Why select interests?
-                                    </Text>
-                                    <Text className="font-Inter text-gray-600 text-[12px] leading-4">
-                                        Your interests help us personalize your experience, recommend relevant counselors, and show you content that matches your wellness goals.
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
+                        <InfoSection />
                     </View>
                 </BottomSheetScrollView>
 
@@ -286,4 +336,10 @@ export default function EditInterestsBottomSheet({ ref, onChange, currentInteres
             </View>
         </CustomBottomSheet>
     );
-}
+};
+
+// Export memoized component
+const MemoizedComponent = memo(EditInterestsBottomSheet);
+MemoizedComponent.displayName = 'EditInterestsBottomSheet';
+
+export default MemoizedComponent;

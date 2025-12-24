@@ -4,90 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { InputBox } from '@/components';
-
-// Move constants outside component
-const INITIAL_MESSAGES = [
-    {
-        id: '1',
-        text: 'Hello! How can I help you today?',
-        sender: 'host',
-        timestamp: new Date(Date.now() - 3600000),
-        type: 'text',
-        read: true
-    },
-    {
-        id: '2',
-        text: 'Hi, I\'ve been feeling anxious lately and would like some guidance.',
-        sender: 'customer',
-        timestamp: new Date(Date.now() - 3500000),
-        type: 'text',
-        read: true
-    },
-    {
-        id: '3',
-        text: 'I understand. Let\'s start by exploring what might be triggering these feelings. Can you tell me more about when you typically feel anxious?',
-        sender: 'host',
-        timestamp: new Date(Date.now() - 3400000),
-        type: 'text',
-        read: true
-    },
-    {
-        id: '4',
-        text: 'It usually happens in social situations or when I have work deadlines.',
-        sender: 'customer',
-        timestamp: new Date(Date.now() - 3300000),
-        type: 'text',
-        read: true
-    },
-    {
-        id: '5',
-        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
-        sender: 'host',
-        timestamp: new Date(Date.now() - 3200000),
-        type: 'text',
-        read: false
-    },
-    {
-        id: '6',
-        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
-        sender: 'host',
-        timestamp: new Date(Date.now() - 3200000),
-        type: 'text',
-        read: false
-    },
-    {
-        id: '7',
-        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
-        sender: 'host',
-        timestamp: new Date(Date.now() - 3200000),
-        type: 'text',
-        read: false
-    },
-    {
-        id: '8',
-        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
-        sender: 'customer',
-        timestamp: new Date(Date.now() - 3200000),
-        type: 'text',
-        read: false
-    },
-];
-
-const AI_RESPONSES = [
-    "I understand how you're feeling. Let's work through this together.",
-    "That's a common concern. Many people experience similar thoughts.",
-    "Thank you for sharing that with me. It takes courage to open up.",
-    "Let me help you explore some coping strategies for that situation.",
-    "I'm here to support you. Would you like to discuss this further?"
-];
-
-const MESSAGE_ACTIONS = [
-    { icon: 'copy', label: 'Copy', action: 'copy' },
-    { icon: 'arrow-redo', label: 'Forward', action: 'forward' },
-    { icon: 'arrow-undo', label: 'Reply', action: 'reply' },
-    { icon: 'checkbox', label: 'Select', action: 'select' },
-    { icon: 'trash', label: 'Delete', action: 'delete', destructive: true },
-];
+import { Toast } from 'toastify-react-native';
 
 // Move helper function outside component
 const formatTime = (timestamp) => {
@@ -344,16 +261,25 @@ export default function ChatScreen({ route }) {
 
         switch (action) {
             case 'copy':
-                Alert.alert('Copied', 'Message copied to clipboard');
+                Toast.show({
+                    type: "success",
+                    text2: "Message copied to clipboard"
+                });
                 break;
             case 'forward':
-                Alert.alert('Forward', 'Forward message functionality');
+                Toast.show({
+                    type: "info",
+                    text2: "Forward message functionality"
+                });
                 break;
             case 'reply':
                 setNewMessage(`Replying to: "${message.text}" `);
                 break;
             case 'select':
-                Alert.alert('Select', 'Select multiple messages');
+                Toast.show({
+                    type: "info",
+                    text2: "Select multiple messages"
+                });
                 break;
             case 'delete':
                 Alert.alert('Delete', 'Delete this message?', [
@@ -363,6 +289,10 @@ export default function ChatScreen({ route }) {
                         style: 'destructive',
                         onPress: () => {
                             setMessages(prev => prev.filter(msg => msg.id !== message.id));
+                            Toast.show({
+                                type: "success",
+                                text2: "Message deleted"
+                            });
                         }
                     }
                 ]);
@@ -392,21 +322,23 @@ export default function ChatScreen({ route }) {
     const keyExtractor = useCallback((item) => item.id, []);
 
     // Memoize scroll handlers
-    const handleContentSizeChange = useCallback(() => {
+    const handleContentSizeChange = useCallback((width, height) => {
+        console.log("reached in content size")
         flatListRef.current?.scrollToEnd({ animated: true });
     }, []);
 
-    const handleLayout = useCallback(() => {
+    const handleLayout = useCallback((event) => {
+        console.log("reached in layout size")
         flatListRef.current?.scrollToEnd({ animated: false });
     }, []);
 
     // Memoize send button style
-    const sendButtonStyle = useMemo(() => 
+    const sendButtonStyle = useMemo(() =>
         newMessage.trim() ? 'bg-themeColor' : 'bg-gray-200',
         [newMessage]
     );
 
-    const sendIconColor = useMemo(() => 
+    const sendIconColor = useMemo(() =>
         newMessage.trim() ? 'white' : COLORS.grey,
         [newMessage]
     );
@@ -432,7 +364,7 @@ export default function ChatScreen({ route }) {
                         showsVerticalScrollIndicator={false}
                         onContentSizeChange={handleContentSizeChange}
                         onLayout={handleLayout}
-                        removeClippedSubviews={true}
+//                         removeClippedSubviews={true}
                         maxToRenderPerBatch={10}
                         windowSize={10}
                         initialNumToRender={10}
@@ -479,3 +411,92 @@ export default function ChatScreen({ route }) {
         </View>
     );
 }
+
+
+
+
+
+
+
+const INITIAL_MESSAGES = [
+    {
+        id: '1',
+        text: 'Hello! How can I help you today?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3600000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '2',
+        text: 'Hi, I\'ve been feeling anxious lately and would like some guidance.',
+        sender: 'customer',
+        timestamp: new Date(Date.now() - 3500000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '3',
+        text: 'I understand. Let\'s start by exploring what might be triggering these feelings. Can you tell me more about when you typically feel anxious?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3400000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '4',
+        text: 'It usually happens in social situations or when I have work deadlines.',
+        sender: 'customer',
+        timestamp: new Date(Date.now() - 3300000),
+        type: 'text',
+        read: true
+    },
+    {
+        id: '5',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+    {
+        id: '6',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+    {
+        id: '7',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'host',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+    {
+        id: '8',
+        text: 'Thank you for sharing that. Many people experience anxiety in similar situations. Would you like to learn some breathing techniques that can help?',
+        sender: 'customer',
+        timestamp: new Date(Date.now() - 3200000),
+        type: 'text',
+        read: false
+    },
+];
+
+const AI_RESPONSES = [
+    "I understand how you're feeling. Let's work through this together.",
+    "That's a common concern. Many people experience similar thoughts.",
+    "Thank you for sharing that with me. It takes courage to open up.",
+    "Let me help you explore some coping strategies for that situation.",
+    "I'm here to support you. Would you like to discuss this further?"
+];
+
+const MESSAGE_ACTIONS = [
+    { icon: 'copy', label: 'Copy', action: 'copy' },
+    { icon: 'arrow-redo', label: 'Forward', action: 'forward' },
+    { icon: 'arrow-undo', label: 'Reply', action: 'reply' },
+    { icon: 'checkbox', label: 'Select', action: 'select' },
+    { icon: 'trash', label: 'Delete', action: 'delete', destructive: true },
+];

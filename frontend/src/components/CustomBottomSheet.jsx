@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { memo } from 'react'
 import BottomSheet from '@gorhom/bottom-sheet'
 import CustomBackdrop from './CustomBackdrop'
 import { COLORS } from '@/constants/theme'
 
-export default function CustomBottomSheet({ ref = null, onChange = null, children, snapPoints = ['50%', "90%"] }) {
+const CustomBottomSheet = ({ ref = null, onChange = null, children, snapPoints = ['50%', "90%"] }) => {
     return (
         <BottomSheet
             ref={ref}
@@ -22,3 +22,6 @@ export default function CustomBottomSheet({ ref = null, onChange = null, childre
 
     )
 }
+
+
+export default memo(CustomBottomSheet);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
 import CustomBottomSheet from "./CustomBottomSheet";
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { COLORS } from "@/constants/theme";
@@ -6,40 +6,58 @@ import { Pressable, Text, View, Switch } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Toast } from 'toastify-react-native';
 
-// Memoized SettingItem component
-const SettingItem = memo(({ icon, title, description, value, onToggle, onPress, rightComponent, isLast }) => (
-    <Pressable
-        onPress={onPress}
-        className={`flex-row items-center justify-between px-4 py-4 active:bg-gray-50 ${!isLast ? 'border-b border-gray-100' : ''
-            }`}
-    >
-        <View className="flex-row items-center gap-3 flex-1">
-            <View className="w-10 h-10 rounded-xl bg-themeColor/10 items-center justify-center">
-                <Ionicons name={icon} size={18} color={COLORS.themeColor} />
-            </View>
-            <View className="flex-1">
-                <Text className="font-InterSemibold text-slate-800 text-[15px]">
-                    {title}
-                </Text>
-                {description && (
-                    <Text className="font-Inter text-gray-500 text-[12px] mt-0.5">
-                        {description}
-                    </Text>
-                )}
-            </View>
-        </View>
-        {rightComponent || (
-            <Switch
-                value={value}
-                onValueChange={onToggle}
-                trackColor={{ false: '#E5E7EB', true: COLORS.themeColor }}
-                thumbColor="#FFFFFF"
-            />
-        )}
-    </Pressable>
-));
+// Memoized SettingItem component with custom comparison
+const SettingItem = memo(({ icon, title, description, value, onToggle, onPress, rightComponent, isLast }) => {
+    const switchTrackColor = useMemo(() => ({
+        false: '#E5E7EB',
+        true: COLORS.themeColor
+    }), []);
 
-// Memoized VisibilityOption component
+    return (
+        <Pressable
+            onPress={onPress}
+            className={`flex-row items-center justify-between px-4 py-4 active:bg-gray-50 ${!isLast ? 'border-b border-gray-100' : ''
+                }`}
+        >
+            <View className="flex-row items-center gap-3 flex-1">
+                <View className="w-10 h-10 rounded-xl bg-themeColor/10 items-center justify-center">
+                    <Ionicons name={icon} size={18} color={COLORS.themeColor} />
+                </View>
+                <View className="flex-1">
+                    <Text className="font-InterSemibold text-slate-800 text-[15px]">
+                        {title}
+                    </Text>
+                    {description && (
+                        <Text className="font-Inter text-gray-500 text-[12px] mt-0.5">
+                            {description}
+                        </Text>
+                    )}
+                </View>
+            </View>
+            {rightComponent || (
+                <Switch
+                    value={value}
+                    onValueChange={onToggle}
+                    trackColor={switchTrackColor}
+                    thumbColor="#FFFFFF"
+                />
+            )}
+        </Pressable>
+    );
+}, (prevProps, nextProps) => {
+    return prevProps.icon === nextProps.icon &&
+           prevProps.title === nextProps.title &&
+           prevProps.description === nextProps.description &&
+           prevProps.value === nextProps.value &&
+           prevProps.onToggle === nextProps.onToggle &&
+           prevProps.onPress === nextProps.onPress &&
+           prevProps.isLast === nextProps.isLast &&
+           prevProps.rightComponent === nextProps.rightComponent;
+});
+
+SettingItem.displayName = 'SettingItem';
+
+// Memoized VisibilityOption component with custom comparison
 const VisibilityOption = memo(({ value, label, description, isSelected, onPress }) => (
     <Pressable
         onPress={onPress}
@@ -67,28 +85,110 @@ const VisibilityOption = memo(({ value, label, description, isSelected, onPress 
             )}
         </View>
     </Pressable>
+), (prevProps, nextProps) => {
+    return prevProps.value === nextProps.value &&
+           prevProps.label === nextProps.label &&
+           prevProps.description === nextProps.description &&
+           prevProps.isSelected === nextProps.isSelected &&
+           prevProps.onPress === nextProps.onPress;
+});
+
+VisibilityOption.displayName = 'VisibilityOption';
+
+// Default settings constant
+const DEFAULT_SETTINGS = {
+    profileVisibility: 'public',
+    showOnlineStatus: true,
+    allowMessages: true,
+    showActivityStatus: true,
+    shareDataForAnalytics: false,
+    twoFactorAuth: false,
+    loginAlerts: true,
+    sessionTimeout: true,
+    biometricAuth: false,
+    dataDownload: false,
+    deleteAccount: false,
+};
+
+// Memoized static components
+const HeaderSection = memo(() => (
+    <View className="flex-row items-center gap-3 flex-1">
+        <View className="bg-themeColor/10 p-2.5 rounded-xl">
+            <Ionicons name="shield-checkmark" size={20} color={COLORS.themeColor} />
+        </View>
+        <View className="flex-1">
+            <Text className="font-InterBold text-slate-800 text-[18px]">
+                Privacy & Security
+            </Text>
+            <Text className="font-Inter text-gray-500 text-[12px] mt-0.5">
+                Manage your account privacy and security
+            </Text>
+        </View>
+    </View>
 ));
+HeaderSection.displayName = 'HeaderSection';
 
-export default function PrivacySecurityBottomSheet({ ref, onChange, currentSettings = {}, onSave }) {
+const SectionHeader = memo(({ title }) => (
+    <View className="flex-row items-center gap-2 mb-4">
+        <View className="w-1 h-5 bg-themeColor rounded-full" />
+        <Text className="font-InterSemibold text-slate-800 text-[16px]">
+            {title}
+        </Text>
+    </View>
+));
+SectionHeader.displayName = 'SectionHeader';
+
+const InfoSection = memo(() => (
+    <View className="bg-blue-50 rounded-2xl p-4 border border-blue-200">
+        <View className="flex-row items-start gap-3">
+            <Ionicons name="information-circle" size={18} color={COLORS.themeColor} />
+            <View className="flex-1">
+                <Text className="font-InterSemibold text-slate-800 text-[13px] mb-1">
+                    Your Privacy Matters
+                </Text>
+                <Text className="font-Inter text-gray-600 text-[12px] leading-4">
+                    We take your privacy seriously. All your data is encrypted and stored securely.
+                    You can change these settings anytime.
+                </Text>
+            </View>
+        </View>
+    </View>
+));
+InfoSection.displayName = 'InfoSection';
+
+const PrivacySecurityBottomSheet = ({ ref, onChange, currentSettings = {}, onSave }) => {
     // Local state for managing settings
-    const [settings, setSettings] = useState({
-        profileVisibility: 'public',
-        showOnlineStatus: true,
-        allowMessages: true,
-        showActivityStatus: true,
-        shareDataForAnalytics: false,
-        twoFactorAuth: false,
-        loginAlerts: true,
-        sessionTimeout: true,
-        biometricAuth: false,
-        dataDownload: false,
-        deleteAccount: false,
-    });
-
-    // Initialize with current settings when bottom sheet opens
+    const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+    
+    // Use ref to track if component is mounted to prevent state updates after unmount
+    const isMountedRef = useRef(true);
+    
     useEffect(() => {
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
+    // Initialize with current settings when bottom sheet opens or currentSettings changes
+    useEffect(() => {
+        if (!isMountedRef.current) return;
+        
         if (currentSettings && Object.keys(currentSettings).length > 0) {
-            setSettings(prev => ({ ...prev, ...currentSettings }));
+            setSettings(prev => {
+                // Only update if settings actually changed
+                const hasChanges = Object.keys(currentSettings).some(
+                    key => prev[key] !== currentSettings[key]
+                );
+                return hasChanges ? { ...prev, ...currentSettings } : prev;
+            });
+        } else {
+            // Reset to defaults if no currentSettings provided
+            setSettings(prev => {
+                const hasChanges = Object.keys(DEFAULT_SETTINGS).some(
+                    key => prev[key] !== DEFAULT_SETTINGS[key]
+                );
+                return hasChanges ? { ...DEFAULT_SETTINGS } : prev;
+            });
         }
     }, [currentSettings]);
 
@@ -108,8 +208,34 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
         }));
     }, []);
 
+    // Memoize toggle handlers to prevent function recreation
+    const toggleHandlers = useMemo(() => {
+        const handlers = {};
+        const settingKeys = [
+            'showOnlineStatus',
+            'allowMessages',
+            'showActivityStatus',
+            'shareDataForAnalytics',
+            'loginAlerts',
+            'sessionTimeout'
+        ];
+        settingKeys.forEach(key => {
+            handlers[key] = () => handleToggle(key);
+        });
+        return handlers;
+    }, [handleToggle]);
+
+    // Memoize visibility change handlers
+    const visibilityHandlers = useMemo(() => ({
+        public: () => handleProfileVisibilityChange('public'),
+        friends: () => handleProfileVisibilityChange('friends'),
+        private: () => handleProfileVisibilityChange('private'),
+    }), [handleProfileVisibilityChange]);
+
     // Memoize handleSave
     const handleSave = useCallback(() => {
+        if (!isMountedRef.current) return;
+        
         if (onSave) {
             onSave(settings);
         }
@@ -117,7 +243,7 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
         Toast.show({
             type: "success",
             text2: "Your privacy and security settings have been updated",
-        })
+        });
 
         if (ref?.current) {
             ref.current.close();
@@ -126,9 +252,12 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
 
     // Memoize handleCancel
     const handleCancel = useCallback(() => {
-        if (currentSettings && Object.keys(currentSettings).length > 0) {
-            setSettings(prev => ({ ...prev, ...currentSettings }));
-        }
+        if (!isMountedRef.current) return;
+        
+        const resetSettings = currentSettings && Object.keys(currentSettings).length > 0
+            ? { ...DEFAULT_SETTINGS, ...currentSettings }
+            : { ...DEFAULT_SETTINGS };
+        setSettings(resetSettings);
 
         if (ref?.current) {
             ref.current.close();
@@ -137,25 +266,31 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
 
     // Memoize handleTwoFactorToggle
     const handleTwoFactorToggle = useCallback(() => {
-        handleToggle('twoFactorAuth');
-        if (!settings.twoFactorAuth) {
-            Toast.show({
-                type: "info",
-                text2: "You'll be prompted to set up 2FA after saving",
-            })
-        }
-    }, [settings.twoFactorAuth, handleToggle]);
+        setSettings(prev => {
+            const newValue = !prev.twoFactorAuth;
+            if (!newValue) {
+                Toast.show({
+                    type: "info",
+                    text2: "You'll be prompted to set up 2FA after saving",
+                });
+            }
+            return { ...prev, twoFactorAuth: newValue };
+        });
+    }, []);
 
     // Memoize handleBiometricToggle
     const handleBiometricToggle = useCallback(() => {
-        handleToggle('biometricAuth');
-        if (!settings.biometricAuth) {
-            Toast.show({
-                type: "info",
-                text2: "You'll be prompted to enable biometrics after saving",
-            });
-        }
-    }, [settings.biometricAuth, handleToggle]);
+        setSettings(prev => {
+            const newValue = !prev.biometricAuth;
+            if (!newValue) {
+                Toast.show({
+                    type: "info",
+                    text2: "You'll be prompted to enable biometrics after saving",
+                });
+            }
+            return { ...prev, biometricAuth: newValue };
+        });
+    }, []);
 
     // Memoize handleDataDownload
     const handleDataDownload = useCallback(() => {
@@ -187,19 +322,7 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
                     <View className="px-5 pb-6 pt-4">
                         {/* Header Section */}
                         <View className="flex-row justify-between items-center mb-6">
-                            <View className="flex-row items-center gap-3 flex-1">
-                                <View className="bg-themeColor/10 p-2.5 rounded-xl">
-                                    <Ionicons name="shield-checkmark" size={20} color={COLORS.themeColor} />
-                                </View>
-                                <View className="flex-1">
-                                    <Text className="font-InterBold text-slate-800 text-[18px]">
-                                        Privacy & Security
-                                    </Text>
-                                    <Text className="font-Inter text-gray-500 text-[12px] mt-0.5">
-                                        Manage your account privacy and security
-                                    </Text>
-                                </View>
-                            </View>
+                            <HeaderSection />
                             <Pressable
                                 onPress={handleCancel}
                                 className="p-2 rounded-full active:bg-gray-100"
@@ -218,60 +341,55 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
                                 label="Public"
                                 description="Anyone can view your profile"
                                 isSelected={settings.profileVisibility === 'public'}
-                                onPress={() => handleProfileVisibilityChange('public')}
+                                onPress={visibilityHandlers.public}
                             />
                             <VisibilityOption
                                 value="friends"
                                 label="Friends Only"
                                 description="Only your connections can view your profile"
                                 isSelected={settings.profileVisibility === 'friends'}
-                                onPress={() => handleProfileVisibilityChange('friends')}
+                                onPress={visibilityHandlers.friends}
                             />
                             <VisibilityOption
                                 value="private"
                                 label="Private"
                                 description="Your profile is hidden from others"
                                 isSelected={settings.profileVisibility === 'private'}
-                                onPress={() => handleProfileVisibilityChange('private')}
+                                onPress={visibilityHandlers.private}
                             />
                         </View>
 
                         {/* Privacy Settings Section */}
                         <View className="mb-6">
-                            <View className="flex-row items-center gap-2 mb-4">
-                                <View className="w-1 h-5 bg-themeColor rounded-full" />
-                                <Text className="font-InterSemibold text-slate-800 text-[16px]">
-                                    Privacy Settings
-                                </Text>
-                            </View>
+                            <SectionHeader title="Privacy Settings" />
                             <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                                 <SettingItem
                                     icon="eye"
                                     title="Show Online Status"
                                     description="Let others see when you're online"
                                     value={settings.showOnlineStatus}
-                                    onToggle={() => handleToggle('showOnlineStatus')}
+                                    onToggle={toggleHandlers.showOnlineStatus}
                                 />
                                 <SettingItem
                                     icon="chatbubbles"
                                     title="Allow Messages"
                                     description="Let others send you messages"
                                     value={settings.allowMessages}
-                                    onToggle={() => handleToggle('allowMessages')}
+                                    onToggle={toggleHandlers.allowMessages}
                                 />
                                 <SettingItem
                                     icon="pulse"
                                     title="Show Activity Status"
                                     description="Display your recent activity"
                                     value={settings.showActivityStatus}
-                                    onToggle={() => handleToggle('showActivityStatus')}
+                                    onToggle={toggleHandlers.showActivityStatus}
                                 />
                                 <SettingItem
                                     icon="analytics"
                                     title="Share Data for Analytics"
                                     description="Help improve our services"
                                     value={settings.shareDataForAnalytics}
-                                    onToggle={() => handleToggle('shareDataForAnalytics')}
+                                    onToggle={toggleHandlers.shareDataForAnalytics}
                                     isLast={true}
                                 />
                             </View>
@@ -279,12 +397,7 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
 
                         {/* Security Settings Section */}
                         <View className="mb-6">
-                            <View className="flex-row items-center gap-2 mb-4">
-                                <View className="w-1 h-5 bg-themeColor rounded-full" />
-                                <Text className="font-InterSemibold text-slate-800 text-[16px]">
-                                    Security Settings
-                                </Text>
-                            </View>
+                            <SectionHeader title="Security Settings" />
                             <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                                 <SettingItem
                                     icon="lock-closed"
@@ -298,14 +411,14 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
                                     title="Login Alerts"
                                     description="Get notified of new logins"
                                     value={settings.loginAlerts}
-                                    onToggle={() => handleToggle('loginAlerts')}
+                                    onToggle={toggleHandlers.loginAlerts}
                                 />
                                 <SettingItem
                                     icon="time"
                                     title="Auto Session Timeout"
                                     description="Automatically log out after inactivity"
                                     value={settings.sessionTimeout}
-                                    onToggle={() => handleToggle('sessionTimeout')}
+                                    onToggle={toggleHandlers.sessionTimeout}
                                 />
                                 <SettingItem
                                     icon="finger-print"
@@ -320,12 +433,7 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
 
                         {/* Data & Privacy Section */}
                         <View className="mb-6">
-                            <View className="flex-row items-center gap-2 mb-4">
-                                <View className="w-1 h-5 bg-themeColor rounded-full" />
-                                <Text className="font-InterSemibold text-slate-800 text-[16px]">
-                                    Data & Privacy
-                                </Text>
-                            </View>
+                            <SectionHeader title="Data & Privacy" />
                             <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                                 <SettingItem
                                     icon="download"
@@ -352,20 +460,7 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
                         </View>
 
                         {/* Info Section */}
-                        <View className="bg-blue-50 rounded-2xl p-4 border border-blue-200">
-                            <View className="flex-row items-start gap-3">
-                                <Ionicons name="information-circle" size={18} color={COLORS.themeColor} />
-                                <View className="flex-1">
-                                    <Text className="font-InterSemibold text-slate-800 text-[13px] mb-1">
-                                        Your Privacy Matters
-                                    </Text>
-                                    <Text className="font-Inter text-gray-600 text-[12px] leading-4">
-                                        We take your privacy seriously. All your data is encrypted and stored securely.
-                                        You can change these settings anytime.
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
+                        <InfoSection />
                     </View>
                 </BottomSheetScrollView>
 
@@ -410,4 +505,10 @@ export default function PrivacySecurityBottomSheet({ ref, onChange, currentSetti
             </View>
         </CustomBottomSheet>
     );
-}
+};
+
+// Export memoized component
+const MemoizedComponent = memo(PrivacySecurityBottomSheet);
+MemoizedComponent.displayName = 'PrivacySecurityBottomSheet';
+
+export default MemoizedComponent;

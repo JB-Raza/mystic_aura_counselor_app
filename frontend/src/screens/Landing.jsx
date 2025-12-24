@@ -1,81 +1,88 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import React, { useCallback } from 'react'
+import { View } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import HomeScreen from './main/HomeScreen'
 import UserProfile from './userSide/UserProfile'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
-import NotificationScreen from './main/NotificationScreen'
 import { MyBookingsScreen } from '.'
 import AllChatsScreen from './general/AllChatsScreen'
 
 const Tab = createBottomTabNavigator()
 
+// Icon mapping for better performance
+const ICON_MAP = {
+    Home: { focused: 'home', unfocused: 'home-outline' },
+    MyBookings: { focused: 'bookmarks', unfocused: 'bookmarks-outline' },
+    AllChats: { focused: 'chatbubbles', unfocused: 'chatbubbles-outline' },
+    UserProfile: { focused: 'person-circle', unfocused: 'person-circle-outline' },
+};
+
+// Memoized icon component
+const TabBarIcon = React.memo(({ routeName, focused }) => {
+    const iconConfig = ICON_MAP[routeName] || { focused: 'ellipse-outline', unfocused: 'ellipse-outline' };
+    const iconName = focused ? iconConfig.focused : iconConfig.unfocused;
+    
+    return (
+        <View className="items-center justify-center relative w-full mb-0.5">
+            <View className={`items-center justify-center w-11 h-11 rounded-[14px] mb-1 ${focused ? 'bg-themeColor/12' : ''}`}>
+                <Ionicons
+                    name={iconName}
+                    size={focused ? 24 : 22}
+                    color={focused ? COLORS.themeColor : '#9CA3AF'}
+                />
+            </View>
+        </View>
+    );
+});
+
+TabBarIcon.displayName = 'TabBarIcon';
+
 export default function Landing() {
+    // Memoize screen options function to prevent recreation on every render
+    const screenOptions = useCallback(({ route }) => ({
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+            const routeName = route?.name || '';
+            return <TabBarIcon routeName={routeName} focused={focused} />;
+        },
+        tabBarStyle: {
+            position: "absolute",
+            backgroundColor: "#ffffff",
+            height: 72,
+            paddingBottom: 10,
+            paddingTop: 6,
+            borderTopWidth: 0,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 10,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            zIndex: 1000,
+        },
+        tabBarLabelStyle: {
+            fontSize: 11,
+            fontFamily: "Inter-SemiBold",
+            marginTop: 6,
+            marginBottom: 0,
+        },
+        tabBarActiveTintColor: COLORS.themeColor,
+        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarItemStyle: {
+            paddingVertical: 2,
+        },
+        // Performance optimizations
+        animationEnabled: true,
+        swipeEnabled: false, // Disable swipe for better performance
+        detachInactiveScreens: true, // Detach inactive screens to free memory
+    }), []);
 
     return (
         <Tab.Navigator
             initialRouteName='Home'
-            screenOptions={({ route }) => ({
-                headerShown: false,
-                tabBarIcon: ({ focused, size, color }) => {
-                    let iconName;
-                    switch (route.name) {
-                        case "Home":
-                            iconName = focused ? 'home' : 'home-outline';
-                            break;
-                        case "MyBookings":
-                            iconName = focused ? 'bookmarks' : 'bookmarks-outline';
-                            break;
-                        case "AllChats":
-                            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-                            break;
-                        case "UserProfile":
-                            iconName = focused ? 'person-circle' : 'person-circle-outline';
-                            break;
-                        default:
-                            iconName = 'ellipse-outline';
-                    }
-                    return (
-                        <View style={styles.iconWrapper}>
-                            <View style={[styles.iconContainer, focused && styles.activeIconContainer]}>
-                                <Ionicons
-                                    name={iconName}
-                                    size={focused ? 24 : 22}
-                                    color={focused ? COLORS.themeColor : '#9CA3AF'}
-                                />
-                            </View>
-                        </View>
-                    );
-                },
-                tabBarStyle: {
-                    position: "absolute",
-                    backgroundColor: "#ffffff",
-                    height: 72,
-                    paddingBottom: 10,
-                    paddingTop: 6,
-                    borderTopWidth: 0,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: -2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                    elevation: 10,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    zIndex: 1000,
-                },
-                tabBarLabelStyle: {
-                    fontSize: 11,
-                    fontFamily: "Inter-SemiBold",
-                    marginTop: 6,
-                    marginBottom: 0,
-                },
-                tabBarActiveTintColor: COLORS.themeColor,
-                tabBarInactiveTintColor: '#9CA3AF',
-                tabBarItemStyle: {
-                    paddingVertical: 2,
-                },
-            })}
+            screenOptions={screenOptions}
         >
             <Tab.Screen
                 name='Home'
@@ -111,24 +118,3 @@ export default function Landing() {
         </Tab.Navigator>
     )
 }
-
-const styles = StyleSheet.create({
-    iconWrapper: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        width: '100%',
-        marginBottom: 2,
-    },
-    iconContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        marginBottom: 4,
-    },
-    activeIconContainer: {
-        backgroundColor: COLORS.themeColor + '12',
-    },
-});

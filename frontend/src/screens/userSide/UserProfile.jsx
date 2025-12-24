@@ -1,40 +1,54 @@
-import { View, Text, Image, ScrollView, Pressable, StatusBar } from 'react-native'
-import React, { useCallback, useRef, useState, useMemo, memo, lazy, Suspense } from 'react'
+import { View, Text, Image, ScrollView, Pressable, StatusBar, InteractionManager } from 'react-native'
+import React, { useCallback, useRef, useState, useMemo, memo, lazy, Suspense, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import { COLORS } from '@/constants/theme'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { IMAGES } from '@/constants/images'
-import { TopHeader, EditInterestsBottomSheet } from '@/components'
+import { TopHeader } from '@/components'
 import ROUTES from '@/constants/routes'
+
+// Lazy load bottom sheets to prevent blocking initial render
+const EditInterestsBottomSheet = lazy(() => import('@/components/EditInterestsBottomSheet'))
 const PrivacySecurityBottomSheet = lazy(() => import('@/components/PrivacySecurityBottomSheet'))
 
-// Memoized InterestChip component
+// Memoized InterestChip component with display name
 const InterestChip = memo(({ interest }) => (
   <View className='bg-themeColor/10 rounded-full px-3.5 py-2'>
     <Text className='font-InterSemibold text-[12px] text-themeColor'>{interest}</Text>
   </View>
 ));
+InterestChip.displayName = 'InterestChip';
 
-// Memoized QuickActionItem component
-const QuickActionItem = memo(({ action, onPress }) => (
-  <Pressable
-    onPress={onPress}
-    className='w-1/2 p-3 items-center active:opacity-70'
-  >
-    <View
-      className='w-12 h-12 rounded-xl items-center justify-center mb-2'
-      style={{
-        backgroundColor: `${action.color}10`,
-      }}
+// Memoized QuickActionItem component with custom comparison
+const QuickActionItem = memo(({ action, onPress }) => {
+  const bgColorStyle = useMemo(() => ({
+    backgroundColor: `${action.color}10`,
+  }), [action.color]);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      className='w-1/2 p-3 items-center active:opacity-70'
     >
-      <Ionicons name={action.icon} size={20} color={action.color} />
-    </View>
-    <Text className='font-InterSemibold text-[12px] text-slate-700 text-center'>{action.label}</Text>
-  </Pressable>
-));
+      <View
+        className='w-12 h-12 rounded-xl items-center justify-center mb-2'
+        style={bgColorStyle}
+      >
+        <Ionicons name={action.icon} size={20} color={action.color} />
+      </View>
+      <Text className='font-InterSemibold text-[12px] text-slate-700 text-center'>{action.label}</Text>
+    </Pressable>
+  );
+}, (prevProps, nextProps) => {
+  return prevProps.action.icon === nextProps.action.icon &&
+         prevProps.action.label === nextProps.action.label &&
+         prevProps.action.color === nextProps.action.color &&
+         prevProps.onPress === nextProps.onPress;
+});
+QuickActionItem.displayName = 'QuickActionItem';
 
-// Memoized SettingMenuItem component
+// Memoized SettingMenuItem component with custom comparison
 const SettingMenuItem = memo(({ item, isLast, onPress }) => (
   <Pressable
     className={`flex-row justify-between items-center px-5 py-4 ${isLast ? '' : 'border-b border-gray-100'
@@ -57,32 +71,93 @@ const SettingMenuItem = memo(({ item, isLast, onPress }) => (
       <Ionicons name="chevron-forward" size={18} color={COLORS.grey} />
     </View>
   </Pressable>
-));
+), (prevProps, nextProps) => {
+  return prevProps.item.icon === nextProps.item.icon &&
+         prevProps.item.label === nextProps.item.label &&
+         prevProps.item.badge === nextProps.item.badge &&
+         prevProps.isLast === nextProps.isLast &&
+         prevProps.onPress === nextProps.onPress;
+});
+SettingMenuItem.displayName = 'SettingMenuItem';
 
-export default function ProfileScreen() {
+// Extract default values to constants
+const DEFAULT_INTERESTS = ['Career Growth', 'Relationships', 'Self Development', 'Stress Management', 'Anxiety', 'Motivation'];
+const DEFAULT_PRIVACY_SETTINGS = {
+  profileVisibility: 'public',
+  showOnlineStatus: true,
+  allowMessages: true,
+  showActivityStatus: true,
+  shareDataForAnalytics: false,
+  twoFactorAuth: false,
+  loginAlerts: true,
+  sessionTimeout: true,
+  biometricAuth: false,
+};
+
+// Memoized static header section
+const ProfileHeader = memo(({ onEditPress }) => (
+  <LinearGradient
+    colors={[COLORS.themeColor, '#7A72FF']}
+    start={{ x: 0.9, y: 0 }}
+    end={{ x: 1, y: 1.5 }}
+    className='pb-6 pt-4 px-5'
+  >
+    <View className='flex-row justify-between items-start mt-2'>
+      <View className='flex-row gap-4 items-center flex-1'>
+        <View className='relative'>
+          <Image source={IMAGES.ProfileAvatar} className='w-20 h-20 rounded-2xl' />
+          <View className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border border-white items-center justify-center'>
+            <View className='w-1.5 h-1.5 bg-white rounded-full' />
+          </View>
+        </View>
+        <View className='flex-1'>
+          <Text className='font-InterBold text-[20px] text-white leading-tight'>John Doe</Text>
+          <View className='flex-row items-center gap-2 mt-1'>
+            <View className='bg-amber-500/20 rounded-full px-2 py-0.5 flex-row items-center gap-1'>
+              <Ionicons name="star" size={12} color="#F59E0B" />
+              <Text className='text-white font-InterSemibold text-[11px]'>Premium</Text>
+            </View>
+          </View>
+          <View className='flex-row items-center gap-1.5 mt-2'>
+            <Ionicons name="star" size={14} color="#F59E0B" />
+            <Text className='text-white/90 font-InterMedium text-[13px]'>4.8 • 12 reviews</Text>
+          </View>
+        </View>
+      </View>
+      <Pressable
+        onPress={onEditPress}
+        className='w-10 h-10 rounded-xl bg-white/20 items-center justify-center active:bg-white/30'
+      >
+        <Ionicons name="create-outline" size={18} color="white" />
+      </Pressable>
+    </View>
+  </LinearGradient>
+));
+ProfileHeader.displayName = 'ProfileHeader';
+
+function ProfileScreen() {
   const navigation = useNavigation()
+  const [isReady, setIsReady] = useState(false)
 
   // State for managing user interests
-  const [myInterests, setMyInterests] = useState(['Career Growth', 'Relationships', 'Self Development', 'Stress Management', 'Anxiety', 'Motivation'])
+  const [myInterests, setMyInterests] = useState(DEFAULT_INTERESTS)
 
   // State for privacy and security settings
-  const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: 'public',
-    showOnlineStatus: true,
-    allowMessages: true,
-    showActivityStatus: true,
-    shareDataForAnalytics: false,
-    twoFactorAuth: false,
-    loginAlerts: true,
-    sessionTimeout: true,
-    biometricAuth: false,
-  })
+  const [privacySettings, setPrivacySettings] = useState(DEFAULT_PRIVACY_SETTINGS)
 
   // Reference for Edit Interests Bottom Sheet
   const editInterestsBottomSheetRef = useRef(null)
 
   // Reference for Privacy & Security Bottom Sheet
   const privacySecurityBottomSheetRef = useRef(null)
+
+  // Defer heavy operations until after initial render
+  useEffect(() => {
+    const interaction = InteractionManager.runAfterInteractions(() => {
+      setIsReady(true);
+    });
+    return () => interaction.cancel();
+  }, []);
 
   // Update status bar when screen is focused
   useFocusEffect(
@@ -205,42 +280,7 @@ export default function ProfileScreen() {
       <StatusBar backgroundColor={COLORS.themeColor} barStyle="light-content" />
       <TopHeader title="Profile" showBackButton={false} />
       {/* Header */}
-      <LinearGradient
-        colors={[COLORS.themeColor, '#7A72FF']}
-        start={{ x: 0.9, y: 0 }}
-        end={{ x: 1, y: 1.5 }}
-        className='pb-6 pt- px-5'
-      >
-        <View className='flex-row justify-between items-start mt-2'>
-          <View className='flex-row gap-4 items-center flex-1'>
-            <View className='relative'>
-              <Image source={IMAGES.ProfileAvatar} className='w-20 h-20 rounded-2xl' />
-              <View className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border border-white items-center justify-center'>
-                <View className='w-1.5 h-1.5 bg-white rounded-full' />
-              </View>
-            </View>
-            <View className='flex-1'>
-              <Text className='font-InterBold text-[20px] text-white leading-tight'>John Doe</Text>
-              <View className='flex-row items-center gap-2 mt-1'>
-                <View className='bg-amber-500/20 rounded-full px-2 py-0.5 flex-row items-center gap-1'>
-                  <Ionicons name="star" size={12} color="#F59E0B" />
-                  <Text className='text-white font-InterSemibold text-[11px]'>Premium</Text>
-                </View>
-              </View>
-              <View className='flex-row items-center gap-1.5 mt-2'>
-                <Ionicons name="star" size={14} color="#F59E0B" />
-                <Text className='text-white/90 font-InterMedium text-[13px]'>4.8 • 12 reviews</Text>
-              </View>
-            </View>
-          </View>
-          <Pressable
-            onPress={handleNavigateToEditProfile}
-            className='w-10 h-10 rounded-xl bg-white/20 items-center justify-center active:bg-white/30'
-          >
-            <Ionicons name="create-outline" size={18} color="white" />
-          </Pressable>
-        </View>
-      </LinearGradient>
+      <ProfileHeader onEditPress={handleNavigateToEditProfile} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -348,8 +388,8 @@ export default function ProfileScreen() {
 
             <View className='flex-row flex-wrap gap-2.5'>
               {myInterests.length > 0 ? (
-                myInterests.map((interest, index) => (
-                  <InterestChip key={`${interest}-${index}`} interest={interest} />
+                myInterests.map((interest) => (
+                  <InterestChip key={interest} interest={interest} />
                 ))
               ) : (
                 <View className='w-full py-3 items-center'>
@@ -408,9 +448,9 @@ export default function ProfileScreen() {
             </View>
 
             <View className='flex-row flex-wrap px-3 pb-4'>
-              {quickActions.map((action, index) => (
+              {quickActions.map((action) => (
                 <QuickActionItem
-                  key={`${action.icon}-${index}`}
+                  key={action.icon}
                   action={action}
                   onPress={action.onPress}
                 />
@@ -424,7 +464,7 @@ export default function ProfileScreen() {
           >
             {settingMenu.map((item, index) => (
               <SettingMenuItem
-                key={`${item.icon}-${index}`}
+                key={item.icon}
                 item={item}
                 isLast={index === settingMenu.length - 1}
                 onPress={item.onPress}
@@ -443,24 +483,31 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* Edit Interests Bottom Sheet */}
-      <EditInterestsBottomSheet
-        ref={editInterestsBottomSheetRef}
-        onChange={() => { }}
-        currentInterests={myInterests}
-        onSave={handleSaveInterests}
-      />
+      {/* Lazy loaded bottom sheets - only render when ready */}
+      {isReady && (
+        <>
+          <Suspense fallback={null}>
+            <EditInterestsBottomSheet
+              ref={editInterestsBottomSheetRef}
+              onChange={() => { }}
+              currentInterests={myInterests}
+              onSave={handleSaveInterests}
+            />
+          </Suspense>
 
-      {/* Privacy & Security Bottom Sheet */}
-      <Suspense fallback={<View className='flex-1 bg-gray-50' />}>
-
-        <PrivacySecurityBottomSheet
-          ref={privacySecurityBottomSheetRef}
-          onChange={() => { }}
-          currentSettings={privacySettings}
-          onSave={handleSavePrivacySettings}
-        />
-      </Suspense>
+          <Suspense fallback={null}>
+            <PrivacySecurityBottomSheet
+              ref={privacySecurityBottomSheetRef}
+              onChange={() => { }}
+              currentSettings={privacySettings}
+              onSave={handleSavePrivacySettings}
+            />
+          </Suspense>
+        </>
+      )}
     </>
   )
 }
+
+// Export memoized component
+export default memo(ProfileScreen);

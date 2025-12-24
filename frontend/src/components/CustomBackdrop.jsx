@@ -1,7 +1,6 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-
-export default function CustomBackdrop(props) {
+const CustomBackdrop = (props) => {
     return (
         <BottomSheetBackdrop
             {...props}
@@ -11,3 +10,5 @@ export default function CustomBackdrop(props) {
         />
     )
 }
+
+export default memo(CustomBackdrop);

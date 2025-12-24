@@ -29,7 +29,7 @@ const AppearanceScreen = lazy(() => import('@/screens/general/Appearance'))
 const HelpAndSupportScreen = lazy(() => import('@/screens/general/Help&Support'))
 const AboutMysticAuraScreen = lazy(() => import('@/screens/general/AboutMysticAura'))
 const AddCoins = lazy(() => import('@/screens/general/AddCoins'))
-const WithdrawCoins = lazy(() => import('@/screens/general/WithdrawCoins'))
+const WithdrawCoins =    lazy(() => import('@/screens/general/WithdrawCoins'))
 const ChatScreen = lazy(() => import('@/screens/general/ChatScreen'))
 
 
