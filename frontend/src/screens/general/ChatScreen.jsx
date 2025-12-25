@@ -157,7 +157,7 @@ export default function ChatScreen({ route }) {
     const aiResponseTimeoutRef = useRef(null);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-    // Memoize chatData
+    // placeholder chatData
     const chatData = useMemo(() => ({
         host: host || {
             id: 'host_1',
@@ -185,18 +185,8 @@ export default function ChatScreen({ route }) {
         };
     }, []);
 
-    // scroll to end when a new message added
-    useEffect(() => {
-        if (!messagesFlatListRef.current) return;
-
-        messagesFlatListRef.current?.scrollToEnd({ animated: true });
-    }, [messages.length]);
-
     const handleContentSizeChange = () => {
-        setTimeout(() => {
-
-            messagesFlatListRef.current?.scrollToEnd({ animated: true });
-        }, 300);
+        messagesFlatListRef.current?.scrollToEnd({ animated: true });
     }
 
 
@@ -213,7 +203,7 @@ export default function ChatScreen({ route }) {
             read: false
         };
 
-        setMessages(prev => [...prev, message]);
+        setMessages(prev => [message, ...prev]);
         setNewMessage('');
 
         // Simulate AI/Counselor response after 2 seconds
@@ -233,7 +223,7 @@ export default function ChatScreen({ route }) {
                     read: false
                 };
 
-                setMessages(prev => [...prev, aiResponse]);
+                setMessages(prev => [aiResponse, ...prev]);
             }, 2000);
         }
     }, [newMessage, chatData.chatType]);
@@ -334,15 +324,16 @@ export default function ChatScreen({ route }) {
                     {/* Messages List */}
                     <View className="flex-1 bg-gray-50">
                         <FlatList
+                            inverted
                             ref={messagesFlatListRef}
                             data={messages}
-                            scrollToEnd={true}
                             keyExtractor={(item) => item.id}
                             renderItem={renderMessage}
                             className="px-4 py-5"
-                            contentContainerStyle={{ paddingBottom: 20 }}
+                            contentContainerStyle={{ paddingBottom: 30 }}
                             showsVerticalScrollIndicator={false}
                             onContentSizeChange={handleContentSizeChange}
+                            initialNumToRender={10}
                         />
                     </View>
 
