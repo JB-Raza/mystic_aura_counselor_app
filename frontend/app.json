@@ -6,6 +6,11 @@
     "web": {
       "favicon": "./assets/icon.jpg"
     },
+    "splash": {
+      "image": "./assets/images/transparent.png",
+      "resizeMode": "cover",
+      "backgroundColor": "transparent"
+    },
     "experiments": {
       "tsconfigPaths": true
     },

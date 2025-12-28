@@ -65,7 +65,6 @@ export default function MainNavigator() {
 
     return (
         <Stack.Navigator
-            // initialRouteName={ROUTES.LANDING}
             initialRouteName={ROUTES.SPLASH}
             screenOptions={({ route }) => ({
                 animation: "flip",

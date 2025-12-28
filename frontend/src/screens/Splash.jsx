@@ -1,97 +1,41 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, ActivityIndicator } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import ROUTES from '@/constants/routes';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 const SplashScreen = ({ navigation }) => {
-    const fadeAnim = useRef(new Animated.Value(0.2)).current;
-    const scaleAnim = useRef(new Animated.Value(0.2)).current;
-    const rotateAnim = useRef(new Animated.Value(0)).current;
-    const pulseAnim = useRef(new Animated.Value(1)).current;
-    const animationsStarted = useRef(false);
-    const navigationRef = useRef(navigation);
+    // const navigationRef = useRef(navigation);
 
-    // Update navigation ref when it changes
+
+    // fade animation custom
+    const fadeAnimation = useSharedValue(0.3)
+    const rotateAnimation = useSharedValue(0)
+
+
+    const fadeStyle = useAnimatedStyle(() => ({
+        opacity: fadeAnimation.value,
+    }))
+
+    const rotateStyle = useAnimatedStyle(() => ({
+        transform: [{ rotate: `${rotateAnimation.value}deg` }]
+    }))
+
     useEffect(() => {
-        navigationRef.current = navigation;
-    }, [navigation]);
+        fadeAnimation.value = withRepeat(withTiming(1, { duration: 1500 }), -1, true)
+        rotateAnimation.value = withRepeat(withTiming(360, { duration: 8000, easing: Easing.linear }), -1, false )
 
-    useEffect(() => {
-        // Prevent animations from running multiple times
-        if (animationsStarted.current) return;
-        animationsStarted.current = true;
+        setTimeout(() => {
+            // navigation.navigate(ROUTES.LANDING)
+        }, 2000)
+    }, [])
 
-        // Use requestAnimationFrame to ensure component is fully rendered
-            // Fade in animation - animate from 0.5 to 1 for smooth fade
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 1000,
-                useNativeDriver: true,
-            }).start();
 
-            // Scale animation with spring
-            Animated.spring(scaleAnim, {
-                toValue: 1,
-                tension: 50,
-                friction: 7,
-                useNativeDriver: true,
-            }).start();
-
-            // Subtle rotation animation
-            Animated.loop(
-                Animated.sequence([
-                    Animated.timing(rotateAnim, {
-                        toValue: 1,
-                        duration: 2000,
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(rotateAnim, {
-                        toValue: 0,
-                        duration: 2000,
-                        useNativeDriver: true,
-                    }),
-                ])
-            ).start();
-
-            // Pulse animation for icon
-            Animated.loop(
-                Animated.sequence([
-                    Animated.timing(pulseAnim, {
-                        toValue: 1.1,
-                        duration: 1000,
-                        useNativeDriver: true,
-                    }),
-                    Animated.timing(pulseAnim, {
-                        toValue: 1,
-                        duration: 1000,
-                        useNativeDriver: true,
-                    }),
-                ])
-            ).start();
-
-        // Navigate after delay
-        const navigationTimer = setTimeout(() => {
-            if (navigationRef.current) {
-                navigationRef.current.replace(ROUTES.LANDING);
-            }
-        }, 2500);
-
-        return () => {
-            clearTimeout(navigationTimer);
-        };
-    }, []);
-
-    const rotate = rotateAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0deg', '360deg'],
-    });
 
     return (
         <>
-            <StatusBar backgroundColor={COLORS.themeColor} style='light' />
             <LinearGradient
                 colors={[COLORS.themeColor, '#7A72FF', COLORS.themeColor]}
                 start={{ x: 0, y: 0 }}
@@ -102,21 +46,18 @@ const SplashScreen = ({ navigation }) => {
 
                     {/* Logo Container */}
                     <Animated.View
-                        style={{
-                            opacity: fadeAnim,
-                            transform: [{ scale: scaleAnim }],
-                        }}
+                        style={fadeStyle}
                         className='items-center mb-8'
                     >
                         {/* Icon with Pulse Animation */}
                         <Animated.View
-                            style={{
-                                transform: [{ scale: pulseAnim }, { rotate }],
-                            }}
                             className='w-32 h-32 rounded-3xl bg-white/20 items-center justify-center mb-6'
                         >
-                            <View className='w-24 h-24 rounded-2xl bg-white/30 items-center justify-center'>
-                                <Ionicons name="sparkles" size={50} color="white" />
+                            <View
+                                className='w-24 h-24 rounded-2xl bg-white/30 items-center justify-center'>
+                                <Animated.View style={rotateStyle}>
+                                    <Ionicons name="sparkles" size={50} color="white" />
+                                </Animated.View>
                             </View>
                         </Animated.View>
 
@@ -133,7 +74,6 @@ const SplashScreen = ({ navigation }) => {
 
                     {/* Loading Indicator */}
                     <Animated.View
-                        style={{ opacity: fadeAnim }}
                         className='absolute bottom-16 items-center'
                     >
                         <ActivityIndicator size="small" color="white" />
