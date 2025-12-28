@@ -28,7 +28,7 @@ const SplashScreen = ({ navigation }) => {
         rotateAnimation.value = withRepeat(withTiming(360, { duration: 8000, easing: Easing.linear }), -1, false )
 
         setTimeout(() => {
-            // navigation.navigate(ROUTES.LANDING)
+            navigation.navigate(ROUTES.LANDING)
         }, 2000)
     }, [])
 
