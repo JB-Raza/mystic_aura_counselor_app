@@ -4,7 +4,7 @@ import React, { useRef, useState, useCallback, useEffect, useMemo, memo, lazy, S
 import { LinearGradient } from 'expo-linear-gradient'
 import { COLORS } from '@/constants/theme'
 import { Ionicons } from '@expo/vector-icons';
-import { ReviewCard, TopHeader } from '@/components';
+import { ReviewCard } from '@/components';
 import { ServiceCard } from '@/components/Cards';
 import { REVIEWS, SERVICES } from '@/sampleData';
 import { AboutCouncelorSection } from '@/sections';
@@ -19,7 +19,6 @@ const BookServiceBottomSheet = lazy(() => import('@/components/BookServiceBottom
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Memoize tabs array to prevent recreation on every render
 const TABS = [
   { id: 'services', label: 'Services', icon: 'grid' },
   { id: 'reviews', label: 'Reviews', icon: 'star' },
@@ -36,10 +35,9 @@ export default function CouncelorProfile({ route }) {
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
 
   const bookServiceBottomSheetRef = useRef()
-  const horizontalScrollRef = useRef(null)
   const pagerViewRef = useRef(null)
 
-  // Memoize loadFavoriteStatus to prevent recreation
+  // loadFavoriteStatus to prevent recreation
   const loadFavoriteStatus = useCallback(async () => {
     if (!data) return
     try {
@@ -54,12 +52,6 @@ export default function CouncelorProfile({ route }) {
   useEffect(() => {
     loadFavoriteStatus()
   }, [loadFavoriteStatus])
-
-  useFocusEffect(
-    useCallback(() => {
-      loadFavoriteStatus()
-    }, [loadFavoriteStatus])
-  )
 
   const handleToggleFavorite = useCallback(async () => {
     if (!data) return
@@ -97,11 +89,11 @@ export default function CouncelorProfile({ route }) {
     }
   }, [data, navigation])
 
-  const handleBottomSheetChange = useCallback(() => {
+  const handleBottomSheetChange = () => {
     console.log("bottom sheet book now")
-  }, [])
+  }
 
-  // Memoize navigation function to prevent re-renders
+  // navigation function to prevent re-renders
   const handleNavigate = useCallback((screenName) => {
     navigation.navigate(screenName)
   }, [navigation])
@@ -122,8 +114,7 @@ export default function CouncelorProfile({ route }) {
     }
   }, [activeTabIndex])
 
-  // Memoize the render section function - FIXED: Now correctly uses activeTabIndex
-  const renderSection = useCallback((tabId) => {
+  const renderSection = (tabId) => {
     switch (tabId) {
       case 'services':
         return <ServicesSection
@@ -138,9 +129,9 @@ export default function CouncelorProfile({ route }) {
       default:
         return <ServicesSection bottomSheetRef={bookServiceBottomSheetRef} setBookServiceData={setBookServiceData} />;
     }
-  }, [data])
+  }
 
-  // Memoize header content to prevent unnecessary re-renders
+  // header content to prevent unnecessary re-renders
   const headerContent = useMemo(() => {
     if (!data) return null;
 
@@ -211,26 +202,6 @@ export default function CouncelorProfile({ route }) {
 
   return (
     <>
-      {/* <TopHeader
-        title={"Counselor Profile"}
-        rightAction={
-          <Pressable
-            onPress={handleToggleFavorite}
-            disabled={isLoadingFavorite}
-            className={`p-2 rounded-full active:bg-white/10 ${isLoadingFavorite ? 'opacity-50' : ''}`}
-          >
-            {isLoadingFavorite ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Ionicons
-                name={isCounselorFavorite ? "heart" : "heart-outline"}
-                size={22}
-                color={isCounselorFavorite ? "#EF4444" : "white"}
-              />
-            )}
-          </Pressable>
-        }
-      /> */}
       <View className='absolute z-10 right-2 top-3'>
         <Pressable
           onPress={handleToggleFavorite}
@@ -249,7 +220,8 @@ export default function CouncelorProfile({ route }) {
         </Pressable>
       </View>
       <View className='flex-1 bg-gray-50'>
-        {headerContent}
+        {/* {headerContent} */}
+        <HeaderSection data={data} />
 
         {/* Modern Tabs */}
         <View className='bg-white border-b border-gray-100'>
@@ -294,9 +266,7 @@ export default function CouncelorProfile({ route }) {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
                 style={{ width: SCREEN_WIDTH }}
-                // Only render content for active tab or adjacent tabs for smoother scrolling
-                // removeClippedSubviews={index !== activeTabIndex && index !== activeTabIndex - 1 && index !== activeTabIndex + 1}
-                removeClippedSubviews={true}
+              // removeClippedSubviews={true}
               >
                 <View className='bg-gray-50'>
                   {renderSection(tab.id)}
@@ -320,7 +290,73 @@ export default function CouncelorProfile({ route }) {
   )
 }
 
-// Memoize ServicesSection to prevent unnecessary re-renders
+const HeaderSection = memo(({ data }) => {
+  if (!data) return null;
+
+  return (
+    <LinearGradient
+      colors={[COLORS.themeColor, '#7A72FF']}
+      start={{ x: 0.8, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      className='pb-6 pt-4 px-5'
+    >
+      <View className="flex-row items-start gap-4 mt-2">
+        {/* Profile Image */}
+        <View className="relative">
+          <View className="absolute inset-0 rounded-2xl border-2 border-white/30" />
+          <Image
+            source={data?.avatar || IMAGES.ProfileAvatar}
+            contentFit='cover'
+            className="w-24 h-24 rounded-2xl"
+          />
+          {/* Online Status */}
+          <View className='absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white items-center justify-center'>
+            <View className='w-2 h-2 bg-white rounded-full' />
+          </View>
+        </View>
+
+        {/* Name and Info */}
+        <View className="flex-1 pt-1">
+          <View className="flex-row items-start justify-between mb-2">
+            <View className="flex-1">
+              <Text className="font-InterBold text-[20px] text-white leading-tight">
+                {data?.name}
+              </Text>
+              <Text className="font-InterMedium text-[13px] text-white/90 mt-1">
+                {data?.tag} Specialist
+              </Text>
+            </View>
+
+            {/* Rating Badge */}
+            <View className="bg-white/20 backdrop-blur rounded-full px-3 py-1.5 flex-row items-center gap-1.5">
+              <Ionicons name="star" size={14} color="#F59E0B" />
+              <Text className='text-white font-InterBold text-[13px]'>{data?.rating || 4.5}</Text>
+            </View>
+          </View>
+
+          {/* Stats Row */}
+          <View className="flex-row gap-3 mt-3">
+            <View className="flex-row items-center gap-1.5 bg-white/20 rounded-full px-2.5 py-1.5">
+              <Ionicons name="time" size={12} color="white" />
+              <Text className="font-InterSemibold text-[11px] text-white">15min</Text>
+            </View>
+
+            <View className="flex-row items-center gap-1.5 bg-white/20 rounded-full px-2.5 py-1.5">
+              <Ionicons name="calendar" size={12} color="white" />
+              <Text className="font-InterSemibold text-[11px] text-white">10y exp</Text>
+            </View>
+
+            <View className="flex-row items-center gap-1.5 bg-white/20 rounded-full px-2.5 py-1.5">
+              <Ionicons name="heart" size={12} color="white" />
+              <Text className="font-InterSemibold text-[11px] text-white">100%</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </LinearGradient>
+  );
+})
+
 const ServicesSection = memo(function ServicesSection({ services, bottomSheetRef, setBookServiceData }) {
   const defaultServices = services || SERVICES;
 
@@ -349,7 +385,7 @@ const ServicesSection = memo(function ServicesSection({ services, bottomSheetRef
   )
 })
 
-// Memoize ReviewSection to prevent unnecessary re-renders
+// ReviewSection to prevent unnecessary re-renders
 const ReviewSection = memo(function ReviewSection({ reviews }) {
   return (
     <View className='px-4 pt-6'>
@@ -365,7 +401,6 @@ const ReviewSection = memo(function ReviewSection({ reviews }) {
 
       <View className="gap-3">
         {reviews.map((review, index) => {
-          // Create unique key from available data
           const uniqueKey = review.id
             || review.userId
             || `review-${index}-${review.user?.name || 'user'}-${review.date || index}`;

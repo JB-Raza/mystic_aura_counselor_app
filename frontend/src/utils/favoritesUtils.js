@@ -2,16 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const FAVORITES_KEY = 'favoriteCounselors'
 
-/**
- * Favorites Utility Functions
- * 
- * Manages favorite counselors using AsyncStorage for persistence
- */
-
-/**
- * Get all favorite counselors
- * @returns {Promise<Array>} Array of favorite counselors
- */
+// Get all favorite counselors
 export const getFavorites = async () => {
   try {
     const favoritesJson = await AsyncStorage.getItem(FAVORITES_KEY)

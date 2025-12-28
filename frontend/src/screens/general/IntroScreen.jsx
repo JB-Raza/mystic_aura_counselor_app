@@ -9,7 +9,6 @@ import ROUTES from '@/constants/routes';
 
 const { width, height } = Dimensions.get('window');
 
-// Constants moved outside component
 const SLIDES = [
     { id: 1, title: 'Welcome to MysticAura', desc: 'Find peace and connect with expert counselors.', image: IMAGES.Logo_Img },
     { id: 2, title: 'Discover Experts', desc: 'Browse counselors by expertise, rating, or availability.', image: IMAGES.Logo_Img },
@@ -17,7 +16,7 @@ const SLIDES = [
     { id: 4, title: 'Join as Counceller or User', desc: 'Get live support through secure video or chat sessions.', image: IMAGES.Logo_Img }
 ];
 
-// Memoized SlideItem component
+//  SlideItem component
 const SlideItem = memo(({ item, index, isLastSlide, onGetStarted }) => (
     <View style={styles.slide}>
         {item.image && <Image source={item.image} style={styles.image} />}
@@ -43,12 +42,12 @@ const SlideItem = memo(({ item, index, isLastSlide, onGetStarted }) => (
 export default function WelcomeCarousel() {
     const navigation = useNavigation();
 
-    // Memoize navigation handler
+    //  navigation handler
     const handleGetStarted = useCallback(() => {
         navigation.navigate(ROUTES.LOGIN);
     }, [navigation]);
 
-    // Memoize renderItem
+    // renderItem
     const renderItem = useCallback(({ item, index }) => {
         const isLastSlide = index === SLIDES.length - 1;
         return (
@@ -61,7 +60,7 @@ export default function WelcomeCarousel() {
         );
     }, [handleGetStarted]);
 
-    // Memoize keyExtractor
+    // keyExtractor
     const keyExtractor = useCallback((item) => item.id.toString(), []);
 
     return (

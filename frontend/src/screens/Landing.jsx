@@ -18,7 +18,7 @@ const ICON_MAP = {
     UserProfile: { focused: 'person-circle', unfocused: 'person-circle-outline' },
 };
 
-// Memoized icon component
+// icon component
 const TabBarIcon = React.memo(({ routeName, focused }) => {
     const iconConfig = ICON_MAP[routeName] || { focused: 'ellipse-outline', unfocused: 'ellipse-outline' };
     const iconName = focused ? iconConfig.focused : iconConfig.unfocused;
@@ -28,7 +28,7 @@ const TabBarIcon = React.memo(({ routeName, focused }) => {
             <View className={`items-center justify-center w-11 h-11 rounded-[14px] mb-1 ${focused ? 'bg-themeColor/12' : ''}`}>
                 <Ionicons
                     name={iconName}
-                    size={focused ? 24 : 22}
+                    size={focused ? 23 : 20}
                     color={focused ? COLORS.themeColor : '#9CA3AF'}
                 />
             </View>
@@ -39,7 +39,7 @@ const TabBarIcon = React.memo(({ routeName, focused }) => {
 TabBarIcon.displayName = 'TabBarIcon';
 
 export default function Landing() {
-    // Memoize screen options function to prevent recreation on every render
+    // screen options
     const screenOptions = useCallback(({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused }) => {

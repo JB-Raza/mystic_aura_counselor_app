@@ -6,9 +6,7 @@ import { COLORS } from '@/constants/theme';
 import { CustomModal, GradientContainer, ButtonFullWidth } from '@/components';
 
 import { Toast } from 'toastify-react-native';
-import { useToast } from '@/hooks/useToast';
 
-// Constants moved outside component
 const COIN_PACKAGES = [
     {
         id: 1,
@@ -88,7 +86,7 @@ const AVAILABLE_PAYMENT_METHODS = [
     }
 ];
 
-// Memoized CoinPackageCard component
+//  CoinPackageCard component
 const CoinPackageCard = memo(({ packageItem, isSelected, onSelect }) => {
     return (
         <TouchableOpacity
@@ -142,7 +140,7 @@ const CoinPackageCard = memo(({ packageItem, isSelected, onSelect }) => {
     );
 });
 
-// Memoized OfferCard component
+// OfferCard component
 const OfferCard = memo(({ offer }) => (
     <TouchableOpacity className="">
         <GradientContainer>
@@ -168,7 +166,7 @@ const OfferCard = memo(({ offer }) => (
     </TouchableOpacity>
 ));
 
-// Memoized PaymentMethodCard component
+// PaymentMethodCard component
 const PaymentMethodCard = memo(({ method, isSelected, onSelect }) => (
     <TouchableOpacity
         className={`flex-row items-center gap-4 p-4 rounded-xl border-2 mb-3 ${isSelected
@@ -209,9 +207,6 @@ const CoinPurchaseScreen = () => {
     const [addPaymentModalVisible, setAddPaymentModalVisible] = useState(false);
     const [purchaseLoading, setPurchaseLoading] = useState(false);
 
-    const { showToast } = useToast();
-
-    // Memoize computed values
     const sessionsAvailable = useMemo(() => 
         Math.floor(currentBalance / 10),
         [currentBalance]
@@ -222,7 +217,7 @@ const CoinPurchaseScreen = () => {
         [selectedPackage]
     );
 
-    // Memoize handlers
+    // handlers
     const handlePackageSelect = useCallback((packageItem) => {
         setSelectedPackage(packageItem);
     }, []);
@@ -274,7 +269,7 @@ const CoinPurchaseScreen = () => {
         }
     }, [selectedPackage, totalCoins]);
 
-    // Memoize shadow style
+    //  shadow style
     const stickyButtonShadowStyle = useMemo(() => ({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -2 },
@@ -283,14 +278,14 @@ const CoinPurchaseScreen = () => {
         elevation: 10,
     }), []);
 
-    // Memoize button gradient
+    //  button gradient
     const buttonGradient = useMemo(() => ({
         colors: [COLORS.themeColor, '#8B7FFF'],
         start: { x: 0, y: 0 },
         end: { x: 1, y: 0 }
     }), []);
 
-    // Memoize render functions
+    // render functions
     const renderCoinPackage = useCallback((packageItem) => (
         <CoinPackageCard
             key={packageItem.id}

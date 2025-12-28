@@ -226,7 +226,8 @@ function ProfileScreen() {
   }, [navigation]);
 
   const handleNavigateToLogin = useCallback(() => {
-    navigation.navigate(ROUTES.LOGIN);
+    // navigation.navigate(ROUTES.LOGIN);
+    navigation.navigate(ROUTES.INTRO);
   }, [navigation]);
 
   const handleJoinSession = useCallback(() => {

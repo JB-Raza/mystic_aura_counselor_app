@@ -3,7 +3,6 @@ import React, { useMemo, memo, useCallback } from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
 
-// Move notification data outside component
 const NOTIFICATIONS = [
     {
         id: '1',
@@ -34,16 +33,12 @@ const NOTIFICATIONS = [
     },
 ];
 
-// Memoized NotificationItem component
 const NotificationItem = memo(({ notification }) => {
-    const iconStyle = useMemo(() => ({ 
-        backgroundColor: notification.iconColor 
-    }), [notification.iconColor]);
 
     return (
         <View className="flex-row items-center w-full gap-2">
-            <View style={iconStyle} className="h-11 w-11 items-center justify-center rounded-full">
-                <Ionicons name={notification.icon} size={20} color="white" />
+            <View style={{backgroundColor: notification.iconColor}} className="h-11 w-11 items-center justify-center rounded-full">
+                <Ionicons name={notification.iconColor} size={20} color="white" />
             </View>
             <View className="flex-col flex-1 gap-2">
                 <View className="flex-row items-center justify-between">
@@ -66,15 +61,15 @@ const NotificationItem = memo(({ notification }) => {
 });
 
 export default function NotificationScreen() {
-    // Memoize renderItem
+    // renderItem
     const renderNotificationItem = useCallback(({ item }) => (
         <NotificationItem notification={item} />
     ), []);
 
-    // Memoize keyExtractor
+    // keyExtractor
     const keyExtractor = useCallback((item) => item.id, []);
 
-    // Memoize contentContainerStyle
+    // contentContainerStyle
     const contentContainerStyle = useMemo(() => ({
         paddingHorizontal: 16,
         paddingVertical: 16,

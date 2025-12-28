@@ -1,9 +1,9 @@
 import { COLORS } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 
-export default function AboutSection({ counselor }) {
+export default function AboutCouncelorSection({ counselor }) {
     const [readMore, setReadMore] = useState(false);
 
     // Sample counselor data - you can pass this as prop
@@ -92,16 +92,15 @@ export default function AboutSection({ counselor }) {
                                 }`}
                         >
                             {counselorData.about}
-                            {counselorData.about}
                         </Text>
-                        <TouchableOpacity
+                        <Pressable
                             onPress={() => setReadMore(!readMore)}
                             className="mt-3"
                         >
                             <Text className="text-themeColor font-InterSemiBold text-sm">
                                 Read {readMore ? "Less" : "More"}
                             </Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 </View>
 

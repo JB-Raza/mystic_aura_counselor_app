@@ -7,7 +7,6 @@ import { sampleChats } from '@/sampleData';
 import { InputBox } from '@/components';
 import ROUTES from '@/constants/routes';
 
-// Move constants outside component
 const FILTERS = [
   { id: 'all', label: 'All Chats' },
   { id: 'unread', label: 'Unread' },
@@ -15,7 +14,6 @@ const FILTERS = [
   { id: 'ai', label: 'AI Chat' }
 ];
 
-// Move helper functions outside component
 const formatTime = (timestamp) => {
   const now = new Date();
   const messageTime = new Date(timestamp);
@@ -46,7 +44,7 @@ const getHostIcon = (hostType) => {
   }
 };
 
-// Memoized ChatItem component
+// ChatItem component
 const ChatItem = memo(({ chat, onPress }) => {
   const formattedTime = useMemo(() => formatTime(chat.lastMessage.timestamp), [chat.lastMessage.timestamp]);
   const hostIcon = useMemo(() => getHostIcon(chat.host.type), [chat.host.type]);

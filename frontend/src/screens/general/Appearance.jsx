@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { SettingSection } from '@/components';
 
-// Move constants outside component
 const THEMES = [
     { id: 'system', name: 'Follow System', icon: 'phone-portrait' },
     { id: 'light', name: 'Light Mode', icon: 'sunny' },
@@ -27,7 +26,7 @@ const FONT_SIZES = [
     { id: 'xlarge', name: 'Extra Large', previewSize: 18 },
 ];
 
-// Memoized ThemeOption component
+// ThemeOption component
 const ThemeOption = memo(({ option, isSelected, accentColor, onPress }) => {
     const iconColor = useMemo(() => 
         isSelected ? accentColor : COLORS.grey,
@@ -66,7 +65,7 @@ const ThemeOption = memo(({ option, isSelected, accentColor, onPress }) => {
     );
 });
 
-// Memoized ToggleSetting component
+// ToggleSetting component
 const ToggleSetting = memo(({ title, description, value, accentColor, onValueChange }) => {
     const trackColor = useMemo(() => ({ 
         false: '#f1f5f9', 
@@ -93,7 +92,7 @@ const ToggleSetting = memo(({ title, description, value, accentColor, onValueCha
     );
 });
 
-// Memoized AccentColorItem component
+// AccentColorItem component
 const AccentColorItem = memo(({ color, isSelected, onPress }) => (
     <TouchableOpacity
         onPress={onPress}
@@ -106,7 +105,7 @@ const AccentColorItem = memo(({ color, isSelected, onPress }) => (
     </TouchableOpacity>
 ));
 
-// Memoized FontSizeItem component
+// FontSizeItem component
 const FontSizeItem = memo(({ size, isSelected, accentColor, onPress }) => (
     <TouchableOpacity
         className={`flex-row justify-between items-center py-3 px-2 rounded-lg ${isSelected ? 'bg-themeColor/10' : ''
@@ -134,7 +133,7 @@ const AppearanceScreen = () => {
     const [boldText, setBoldText] = useState(false);
     const [highContrast, setHighContrast] = useState(false);
 
-    // Memoize handlers
+    // handlers
     const handleThemeChange = useCallback((themeId) => {
         setTheme(themeId);
     }, []);
@@ -156,7 +155,7 @@ const AppearanceScreen = () => {
         setHighContrast(false);
     }, []);
 
-    // Memoize computed values
+    // computed values
     const currentAccentColorName = useMemo(() => 
         ACCENT_COLORS.find(c => c.value === accentColor)?.name || 'Default',
         [accentColor]

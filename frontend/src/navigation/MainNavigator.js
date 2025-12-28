@@ -1,14 +1,11 @@
 import { Loader, TopHeader } from '@/components';
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { lazy, Suspense } from 'react';
-import { NO_HEADER_SCREENS, ROUTES, SCREEN_TITLES, shouldShowHeader } from '@/constants/routes';
+import { ROUTES, SCREEN_TITLES, shouldShowHeader } from '@/constants/routes';
 
 import SplashScreen from '@/screens/Splash'
-import { ActivityIndicator, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { toggleFavorite } from '@/utils/favoritesUtils';
 
-const Landing = lazy(() => import('@/screens/Landing'))
+import Landing from "@/screens/Landing"
 const LoginScreen = lazy(() => import('@/screens/auth/Login'))
 const ForgetPassword = lazy(() => import('@/screens/auth/ForgetPassword'))
 const IntroScreen = lazy(() => import('@/screens/general/IntroScreen'))
@@ -48,7 +45,6 @@ const LazyScreenWrapper = ({ LazyComponent, route, navigation, ...props }) => {
 };
 
 // Create wrapper components outside render to avoid inline functions
-const LandingWrapper = (props) => <LazyScreenWrapper LazyComponent={Landing} {...props} />;
 const LoginScreenWrapper = (props) => <LazyScreenWrapper LazyComponent={LoginScreen} {...props} />;
 const ForgetPasswordWrapper = (props) => <LazyScreenWrapper LazyComponent={ForgetPassword} {...props} />;
 const IntroScreenWrapper = (props) => <LazyScreenWrapper LazyComponent={IntroScreen} {...props} />;
@@ -67,34 +63,12 @@ const CouncelorProfileWrapper = (props) => <LazyScreenWrapper LazyComponent={Cou
 
 export default function MainNavigator() {
 
-    const topHeaderRightActions = [
-        {
-            route: ROUTES.COUNSELOR_PROFILE,
-            action: (
-                <Pressable
-                    // onPress={() => toggleFavorite(councelor || "")}
-                // disabled={isLoadingFavorite}
-                // className={`p-2 rounded-full active:bg-white/10 ${isLoadingFavorite ? 'opacity-50' : ''}`}
-                >
-                    {/* {isLoadingFavorite ? (
-                        <ActivityIndicator size="small" color="white" />
-                    ) : (
-                        <Ionicons
-                            name={isCounselorFavorite ? "heart" : "heart-outline"}
-                            size={22}
-                            color={isCounselorFavorite ? "#EF4444" : "white"}
-                        />
-                    )} */}
-                </Pressable>
-            )
-        }
-    ]
-
     return (
         <Stack.Navigator
-            initialRouteName={ROUTES.LANDING}
+            // initialRouteName={ROUTES.LANDING}
+            initialRouteName={ROUTES.SPLASH}
             screenOptions={({ route }) => ({
-                animation: "slide_from_right",
+                animation: "flip",
                 headerShown: shouldShowHeader(route?.name),
                 header: ({ navigation, route }) => {
                     const title = screenTitles[route?.name] || route?.name;
@@ -105,7 +79,7 @@ export default function MainNavigator() {
             <Stack.Screen name={ROUTES.SPLASH} component={SplashScreen} />
             <Stack.Screen
                 name={ROUTES.LANDING}
-                component={LandingWrapper}
+                component={Landing}
             />
             <Stack.Screen
                 name={ROUTES.LOGIN}

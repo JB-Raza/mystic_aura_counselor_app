@@ -1,4 +1,5 @@
 
+import { COLORS } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Text, TouchableHighlight, TouchableOpacity, View, ActivityIndicator } from 'react-native';

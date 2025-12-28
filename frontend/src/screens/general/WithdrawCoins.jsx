@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Image }
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { IMAGES } from '@/constants/images';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { GradientContainer, ButtonFullWidth } from '@/components';
 import { Toast } from 'toastify-react-native';
 
@@ -71,7 +70,7 @@ const STATUS_COLORS = {
     failed: { bg: 'bg-red-50', text: 'text-red-600', icon: 'close-circle', iconColor: '#EF4444' }
 };
 
-// Memoized WithdrawalMethodCard component
+// WithdrawalMethodCard component
 const WithdrawalMethodCard = memo(({ method, isSelected, onSelect }) => {
     return (
         <TouchableOpacity
@@ -116,7 +115,7 @@ const WithdrawalMethodCard = memo(({ method, isSelected, onSelect }) => {
     );
 });
 
-// Memoized WithdrawalHistoryCard component
+// WithdrawalHistoryCard component
 const WithdrawalHistoryCard = memo(({ withdrawal }) => {
     const status = STATUS_COLORS[withdrawal.status] || STATUS_COLORS.processing;
 
@@ -151,7 +150,7 @@ const WithdrawalHistoryCard = memo(({ withdrawal }) => {
     );
 });
 
-// Memoized QuickAmountButton component
+// QuickAmountButton component
 const QuickAmountButton = memo(({ amount, isSelected, isDisabled, onPress }) => {
     return (
         <TouchableOpacity
@@ -179,39 +178,30 @@ const QuickAmountButton = memo(({ amount, isSelected, isDisabled, onPress }) => 
 });
 
 const WithdrawCoinsScreen = () => {
-    const navigation = useNavigation();
     const [currentBalance, setCurrentBalance] = useState(240);
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
     const [selectedMethod, setSelectedMethod] = useState('paypal');
     const [withdrawLoading, setWithdrawLoading] = useState(false);
 
-    // Update status bar when screen is focused
-    useFocusEffect(
-        useCallback(() => {
-            StatusBar.setBackgroundColor(COLORS.themeColor, true);
-            StatusBar.setBarStyle('light-content', true);
-        }, [])
-    );
-
-    // Memoize selected method data
+    // selected method data
     const selectedMethodData = useMemo(() =>
         WITHDRAWAL_METHODS.find(m => m.id === selectedMethod),
         [selectedMethod]
     );
 
-    // Memoize USD conversion
+    // USD conversion
     const usdEquivalent = useMemo(() =>
         (currentBalance * 0.1).toFixed(2),
         [currentBalance]
     );
 
-    // Memoize withdrawal amount USD
+    // withdrawal amount USD
     const withdrawalAmountUSD = useMemo(() =>
         (parseFloat(withdrawalAmount || 0) * 0.1).toFixed(2),
         [withdrawalAmount]
     );
 
-    // Memoize handlers
+    // handlers
     const handleQuickAmount = useCallback((amount) => {
         if (amount > currentBalance) {
             Toast.show({
@@ -300,7 +290,7 @@ const WithdrawCoinsScreen = () => {
         }
     }, [withdrawalAmount, selectedMethodData, currentBalance]);
 
-    // Memoize shadow style
+    // shadow style
     const stickyButtonShadowStyle = useMemo(() => ({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -2 },
@@ -309,14 +299,14 @@ const WithdrawCoinsScreen = () => {
         elevation: 10,
     }), []);
 
-    // Memoize button gradient
+    // button gradient
     const buttonGradient = useMemo(() => ({
         colors: [COLORS.themeColor, '#8B7FFF'],
         start: { x: 0, y: 0 },
         end: { x: 1, y: 0 }
     }), []);
 
-    // Memoize render functions
+    // render functions
     const renderQuickAmountButton = useCallback((amount) => {
         const isSelected = withdrawalAmount === amount.toString();
         const isDisabled = amount > currentBalance;
@@ -348,7 +338,7 @@ const WithdrawCoinsScreen = () => {
         />
     ), []);
 
-    // Memoize display conditions
+    // display conditions
     const showWithdrawButton = useMemo(() =>
         withdrawalAmount && parseFloat(withdrawalAmount) > 0,
         [withdrawalAmount]

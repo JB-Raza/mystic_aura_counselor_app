@@ -58,9 +58,7 @@ export default function Loader() {
     );
   }, []);
 
-  // 3D brain neural network paths - creating depth with layers
   const brainPaths = [
-    // Front layer - main neural connections
     {
       path: 'M 150 80 Q 180 100 200 130 Q 190 160 160 180 Q 130 160 120 130 Q 130 100 150 80',
       delay: 0,

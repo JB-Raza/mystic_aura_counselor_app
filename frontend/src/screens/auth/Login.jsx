@@ -71,7 +71,8 @@ export default function LoginScreen() {
     }, []);
 
     const handleLogin = useCallback(() => {
-        console.log('Login pressed');
+        // console.log('Login pressed');
+        navigation.navigate(ROUTES.LANDING)
     }, []);
 
     return (

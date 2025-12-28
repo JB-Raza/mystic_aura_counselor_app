@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, Linking, Alert } from 'react-
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 
-// Move constants outside component
 const FAQ_DATA = [
     {
         id: 1,
@@ -84,7 +83,7 @@ const SUPPORT_OPTIONS = [
     }
 ];
 
-// Memoized ContactCard component
+// ContactCard component
 const ContactCard = memo(({ contact, onPress }) => (
     <TouchableOpacity
         className="bg-white rounded-2xl p-4 mb-3 border border-gray-100 shadow-sm"
@@ -104,7 +103,7 @@ const ContactCard = memo(({ contact, onPress }) => (
     </TouchableOpacity>
 ));
 
-// Memoized SupportOptionCard component
+// SupportOptionCard component
 const SupportOptionCard = memo(({ option, onPress }) => (
     <TouchableOpacity
         className="bg-white rounded-2xl p-4 mb-3 border border-gray-100 shadow-sm"
@@ -123,7 +122,7 @@ const SupportOptionCard = memo(({ option, onPress }) => (
     </TouchableOpacity>
 ));
 
-// Memoized FAQItem component
+// FAQItem component
 const FAQItem = memo(({ item, isExpanded, onToggle }) => (
     <View className="bg-white rounded-2xl mb-3 border border-gray-100 shadow-sm overflow-hidden">
         <TouchableOpacity

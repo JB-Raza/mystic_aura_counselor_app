@@ -35,7 +35,7 @@ const priceOptions = [
 
 const STARS = [1, 2, 3, 4, 5];
 
-// Memoized CategoryItem component
+//d CategoryItem component
 const CategoryItem = memo(({ category, onPress }) => (
   <Pressable
     onPress={onPress}
@@ -48,7 +48,7 @@ const CategoryItem = memo(({ category, onPress }) => (
   </Pressable>
 ));
 
-// Memoized PriceOptionItem component
+//d PriceOptionItem component
 const PriceOptionItem = memo(({ option, isSelected, onPress }) => (
   <Pressable
     onPress={onPress}
@@ -66,7 +66,7 @@ const PriceOptionItem = memo(({ option, isSelected, onPress }) => (
   </Pressable>
 ));
 
-// Memoized StarRatingItem component
+//d StarRatingItem component
 const StarRatingItem = memo(({ star, isSelected, onPress }) => (
   <Pressable
     onPress={onPress}
@@ -89,7 +89,7 @@ export default function HomeScreen() {
 
   const bottomSheetRef = useRef(null);
 
-  // Memoize loadFavorites to prevent recreation
+  // loadFavorites to prevent recreation
   const loadFavorites = useCallback(async () => {
     try {
       const favorites = await getFavorites()
@@ -100,7 +100,7 @@ export default function HomeScreen() {
     }
   }, [])
 
-  // Memoize handleRefresh
+  // handleRefresh
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     await loadFavorites();
@@ -109,38 +109,38 @@ export default function HomeScreen() {
     }, 1000);
   }, [loadFavorites]);
 
-  // Memoize handleOpenPress
+  // handleOpenPress
   const handleOpenPress = useCallback(() => {
     bottomSheetRef.current?.snapToIndex(1);
   }, []);
 
-  // Memoize handleCloseBottomSheet
+  // handleCloseBottomSheet
   const handleCloseBottomSheet = useCallback(() => {
     bottomSheetRef.current?.close();
   }, []);
 
-  // Memoize handleResetFilters
+  // handleResetFilters
   const handleResetFilters = useCallback(() => {
     setFilter(null);
     bottomSheetRef.current?.close();
   }, []);
 
-  // Memoize handlePriceFilterChange
+  // handlePriceFilterChange
   const handlePriceFilterChange = useCallback((value) => {
     setFilter(prev => ({ ...prev, priceFilter: value }));
   }, []);
 
-  // Memoize handleRatingChange
+  // handleRatingChange
   const handleRatingChange = useCallback((rating) => {
     setFilter(prev => ({ ...prev, rating }));
   }, []);
 
-  // Memoize handleOnlineToggle
+  // handleOnlineToggle
   const handleOnlineToggle = useCallback((value) => {
     setFilter(prev => ({ ...prev, online: value }));
   }, []);
 
-  // Memoize navigation handlers
+  // navigation handlers
   const handleNavigateToNotifications = useCallback(() => {
     navigation.navigate(ROUTES.NOTIFICATIONS);
   }, [navigation]);
@@ -165,7 +165,7 @@ export default function HomeScreen() {
     loadFavorites();
   }, [loadFavorites]);
 
-  // Memoize FlatList renderItem for recommended counselors
+  // FlatList renderItem for recommended counselors
   const renderRecommendedCounselor = useCallback(({ item }) => (
     <CouncelorCard
       item={item}
@@ -173,15 +173,15 @@ export default function HomeScreen() {
     />
   ), [favoriteIds]);
 
-  // Memoize FlatList keyExtractor
+  // FlatList keyExtractor
   const keyExtractor = useCallback((item) => item.id || item.name, []);
 
-  // Memoize category press handler
+  // category press handler
   const handleCategoryPress = useCallback((category) => {
     console.log('Category selected:', category.name);
   }, []);
 
-  // Memoize see all handlers
+  // see all handlers
   const handleSeeAllRecommended = useCallback(() => {
     console.log('See all recommended');
   }, []);
@@ -190,7 +190,7 @@ export default function HomeScreen() {
     console.log('See all top rated');
   }, []);
 
-  // Memoize filter rating display
+  // filter rating display
   const filterRatingDisplay = useMemo(() => {
     return `${filter?.rating || 1}+ Stars`;
   }, [filter?.rating]);

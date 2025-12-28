@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { GradientContainer } from '@/components';
 
-// Move constants outside component
 const APP_FEATURES = [
     {
         id: 1,
@@ -105,7 +104,7 @@ const FeatureCard = memo(({ feature }) => (
     </View>
 ));
 
-// Memoized TeamMemberCard component
+//  TeamMemberCard component
 const TeamMemberCard = memo(({ member }) => {
     const initials = useMemo(() => 
         member.name.split(' ').map(n => n[0]).join(''),
@@ -168,7 +167,6 @@ const AppInfoRow = memo(({ label, value, onPress }) => (
 ));
 
 const AboutMysticAuraScreen = () => {
-    // Memoize handlers
     const handlePrivacyPolicyPress = useCallback(() => {
         Linking.openURL('https://mysticaura.com/privacy');
     }, []);

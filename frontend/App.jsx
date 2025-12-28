@@ -13,19 +13,13 @@ import { useEffect, useState } from 'react';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { COLORS } from '@/constants/theme';
-import { SplashScreen as CustomSplashScreen } from '@/screens';
-import * as SplashScreen from 'expo-splash-screen';
 
 import ToastManager from 'toastify-react-native';
-
-// Keep the native splash screen visible while we load resources
-SplashScreen.preventAutoHideAsync();
 
 // redux state
 // import { Provider } from 'react-redux';
 // import store from '@/redux/store';
 import { Text, View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 const loadFonts = async () => {
   await Font.loadAsync({
@@ -38,7 +32,6 @@ const loadFonts = async () => {
 
 // Custom Toast Component with smaller font sizes
 const CustomToast = ({ text1, text2, message, type, ...props }) => {
-  // Map text1/message to text2 so all content shows as text2
   const toastText = text2 || text1 || message || '';
   const backgroundColor = type === 'error' ? '#EF4444' : type === 'success' ? '#10B981' : '#3B82F6';
   
@@ -70,23 +63,16 @@ const styles = StyleSheet.create({
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false)
-  const [showCustomSplash, setShowCustomSplash] = useState(true)
 
   useEffect(() => {
     async function prepare() {
       try {
         // Load fonts
         await loadFonts();
-        
-        // Hide native splash screen immediately after fonts load
-            await SplashScreen.hideAsync();
-
-        // Mark app as ready (custom splash will handle its own timing)
-        setAppIsReady(true);
       } catch (e) {
         console.warn(e);
-        // Even if there's an error, hide native splash and mark ready
-        await SplashScreen.hideAsync();
+      } finally {
+        // Mark app as ready - custom splash screen will show via MainNavigator
         setAppIsReady(true);
       }
     }
@@ -94,19 +80,12 @@ export default function App() {
     prepare();
   }, [])
 
-  const handleSplashFinish = () => {
-    setShowCustomSplash(false);
-  }
-
-  // Show custom splash screen while loading or until it finishes
-  if (!appIsReady || showCustomSplash) {
-    return <CustomSplashScreen onFinish={handleSplashFinish} />
-  }
+if(!appIsReady) return null
 
   return (
     <>
       <SafeAreaProvider>
-        <GestureHandlerRootView>
+        <GestureHandlerRootView style={{ flex: 1 }}>
           <StatusBar backgroundColor={COLORS.themeColor} style='light' />
           <SafeAreaView className='flex-1 justify-start bg-gray-50'>
             {/* redux */}
