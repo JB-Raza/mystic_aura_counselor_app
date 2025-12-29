@@ -16,7 +16,8 @@ import { COLORS } from '@/constants/theme';
 
 import ToastManager from 'toastify-react-native';
 
-// redux state
+// state management
+import { ConfirmationAlertProvider } from '@/state/confirmationContext';
 // import { Provider } from 'react-redux';
 // import store from '@/redux/store';
 import { Text, View, StyleSheet } from 'react-native';
@@ -34,7 +35,7 @@ const loadFonts = async () => {
 const CustomToast = ({ text1, text2, message, type, ...props }) => {
   const toastText = text2 || text1 || message || '';
   const backgroundColor = type === 'error' ? '#EF4444' : type === 'success' ? '#10B981' : '#3B82F6';
-  
+
   return (
     <View style={[styles.toastContainer, { backgroundColor }]}>
       <Text style={styles.text2}>{toastText}</Text>
@@ -80,23 +81,24 @@ export default function App() {
     prepare();
   }, [])
 
-if(!appIsReady) return null
+  if (!appIsReady) return null
 
   return (
     <>
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <StatusBar backgroundColor={COLORS.themeColor} style='light' />
-          <SafeAreaView className='flex-1 justify-start bg-gray-50'>
-            {/* redux */}
-            {/* <Provider store={store}> */}
+          <ConfirmationAlertProvider>
+            <StatusBar backgroundColor={COLORS.themeColor} style='light' />
+            <SafeAreaView className='flex-1 justify-start bg-gray-50'>
+              {/* redux */}
+              {/* <Provider store={store}> */}
               {/* navigation */}
               <NavigationContainer>
                 <MainNavigator />
               </NavigationContainer>
-              
+
               {/* tostify react native */}
-              <ToastManager 
+              <ToastManager
                 useModal={false}
                 position="top"
                 config={{
@@ -105,9 +107,10 @@ if(!appIsReady) return null
                   info: (props) => <CustomToast {...props} type="info" />,
                 }}
               />
-            {/* </Provider> */}
+              {/* </Provider> */}
 
-          </SafeAreaView>
+            </SafeAreaView>
+          </ConfirmationAlertProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </>

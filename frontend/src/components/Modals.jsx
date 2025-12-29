@@ -5,7 +5,7 @@ import { COLORS } from '@/constants/theme';
 import InputBox from './InputBox';
 
 // add payment method modal
-export const CustomModal = ({ visible, onClose, onAdd }) => {
+export const AddPaymentMethodModal = ({ visible, onClose, onAdd }) => {
     const [cardNumber, setCardNumber] = useState('');
     const [expiry, setExpiry] = useState('');
     const [cvv, setCvv] = useState('');
@@ -86,4 +86,97 @@ export const CustomModal = ({ visible, onClose, onAdd }) => {
             </View>
         </Modal>
     );
+};
+
+
+export const ConfirmationDialog = ({
+  visible,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  type = "danger" // 'danger', 'warning', 'info'
+}) => {
+  // Color variants based on type
+  const buttonColors = {
+    danger: {
+      confirm: 'bg-red-500 active:bg-red-600',
+      cancel: 'bg-gray-100 active:bg-gray-200',
+      confirmText: 'text-white',
+      cancelText: 'text-gray-700'
+    },
+    warning: {
+      confirm: 'bg-amber-500 active:bg-amber-600',
+      cancel: 'bg-gray-100 active:bg-gray-200',
+      confirmText: 'text-white',
+      cancelText: 'text-gray-700'
+    },
+    info: {
+      confirm: 'bg-blue-500 active:bg-blue-600',
+      cancel: 'bg-gray-100 active:bg-gray-200',
+      confirmText: 'text-white',
+      cancelText: 'text-gray-700'
+    }
+  };
+
+  const colors = buttonColors[type];
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
+      {/* Overlay with backdrop click */}
+      <TouchableOpacity 
+        activeOpacity={1}
+        onPress={onCancel}
+        className="flex-1 bg-black/40 justify-center items-center px-4"
+      >
+        {/* Dialog Container - prevent click through */}
+        <TouchableOpacity 
+          activeOpacity={1}
+          className="w-full max-w-sm"
+        >
+          <View className="bg-white rounded-2xl p-6 shadow-lg">
+            {/* Title */}
+            <Text className="text-xl font-InterBold text-slate-800 text-center mb-3">
+              {title}
+            </Text>
+            
+            {/* Message */}
+            <Text className="text-base font-Inter text-gray-600 text-center mb-6 leading-5">
+              {message}
+            </Text>
+            
+            {/* Buttons Container */}
+            <View className="flex-row gap-3">
+              {/* Cancel Button */}
+              <TouchableOpacity 
+                onPress={onCancel}
+                className={`flex-1 rounded-xl py-3.5 ${colors.cancel}`}
+              >
+                <Text className={`text-center font-InterSemibold ${colors.cancelText}`}>
+                  {cancelText}
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Confirm Button */}
+              <TouchableOpacity 
+                onPress={onConfirm}
+                className={`flex-1 rounded-xl py-3.5 ${colors.confirm}`}
+              >
+                <Text className={`text-center font-InterSemibold ${colors.confirmText}`}>
+                  {confirmText}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
+  );
 };

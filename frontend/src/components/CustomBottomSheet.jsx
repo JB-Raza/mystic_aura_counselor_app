@@ -2,8 +2,9 @@ import React, { memo } from 'react'
 import BottomSheet from '@gorhom/bottom-sheet'
 import CustomBackdrop from './CustomBackdrop'
 import { COLORS } from '@/constants/theme'
+import { Dimensions } from 'react-native'
 
-const CustomBottomSheet = ({ ref = null, onChange = null, children, snapPoints = ['50%', "90%"] }) => {
+const CustomBottomSheet = ({ ref = null, onChange = null, children, snapPoints = ['45%', "80%"] }) => {
     return (
         <BottomSheet
             ref={ref}
@@ -14,6 +15,7 @@ const CustomBottomSheet = ({ ref = null, onChange = null, children, snapPoints =
             backdropComponent={CustomBackdrop}
             handleIndicatorStyle={{ backgroundColor: COLORS.themeColor, width: 50 }}
             enablePanDownToClose={true}
+            maxDynamicContentSize={Dimensions.get('window').height * 0.80}
         // enableHandlePanningGesture={false}
         // enableContentPanningGesture={false}
         >

@@ -5,6 +5,7 @@ import { COLORS } from "@/constants/theme";
 import { Pressable, Text, View, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Toast } from 'toastify-react-native';
+import { useConfirmationAlert } from '@/state/confirmationContext';
 
 // Move constants outside component
 const ALL_AVAILABLE_INTERESTS = [
@@ -117,6 +118,8 @@ const EditInterestsBottomSheet = ({ ref, onChange, currentInterests = [], onSave
     
     // Use ref to track if component is mounted to prevent state updates after unmount
     const isMountedRef = useRef(true);
+
+    const { showConfirmation, hideConfirmation } = useConfirmationAlert();
     
     useEffect(() => {
         return () => {
@@ -199,8 +202,21 @@ const EditInterestsBottomSheet = ({ ref, onChange, currentInterests = [], onSave
 
     // Memoize handleClearAll
     const handleClearAll = useCallback(() => {
-        setSelectedInterests([]);
-    }, []);
+        showConfirmation({
+            title: "Clear All Interests",
+            message: "Are you sure! You want to clear all selected interests?",
+            onConfirm: () => {
+                setSelectedInterests([]);
+                hideConfirmation();
+            },
+            onCancel: () => {
+                hideConfirmation();
+            },
+            confirmText: "Clear All",
+            cancelText: "Cancel",
+            type: "warning"
+        });
+    }, [showConfirmation, hideConfirmation]);
 
     // Memoize selected count text
     const selectedCountText = useMemo(() => 
