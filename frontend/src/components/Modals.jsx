@@ -114,7 +114,7 @@ export const ConfirmationDialog = ({
       cancelText: 'text-gray-700'
     },
     info: {
-      confirm: 'bg-blue-500 active:bg-blue-600',
+      confirm: 'bg-themeColor active:bg-themeColor/80',
       cancel: 'bg-gray-100 active:bg-gray-200',
       confirmText: 'text-white',
       cancelText: 'text-gray-700'
@@ -157,7 +157,7 @@ export const ConfirmationDialog = ({
               {/* Cancel Button */}
               <TouchableOpacity 
                 onPress={onCancel}
-                className={`flex-1 rounded-xl py-3.5 ${colors.cancel}`}
+                className={`flex-1 rounded-xl py-3 ${colors.cancel}`}
               >
                 <Text className={`text-center font-InterSemibold ${colors.cancelText}`}>
                   {cancelText}
@@ -167,7 +167,7 @@ export const ConfirmationDialog = ({
               {/* Confirm Button */}
               <TouchableOpacity 
                 onPress={onConfirm}
-                className={`flex-1 rounded-xl py-3.5 ${colors.confirm}`}
+                className={`flex-1 rounded-xl py-3 ${colors.confirm}`}
               >
                 <Text className={`text-center font-InterSemibold ${colors.confirmText}`}>
                   {confirmText}

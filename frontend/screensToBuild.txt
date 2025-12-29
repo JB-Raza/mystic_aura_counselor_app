@@ -1,18 +1,28 @@
-using tabs instead of scrollview in councelor profile for sections
+~~~~~~~~~~~~~ Session History & Notes
+Display past sessions with notes, transcripts, and action items. Include a calendar view, searchable history, and downloadable session summaries. Helps users track progress and review insights.
 
+~~~~~~~~~~~~~ Push Notifications Management
+Settings screen to manage notification preferences (session reminders, messages, promotions). Toggle categories, quiet hours, and notification sounds. Improves user control and reduces interruptions.
 
+~~~~~~~~~~~~~ Progress Tracking Dashboard
+Visual dashboard with charts showing session frequency, mood trends, goals achieved, and wellness streaks. Motivates users and provides insights into their journey.
 
-Book appointment workflow
-swipeable functionality on councelor profile section. (make a custom component that can have as many horizontal sections as i want [which will be used in user profile and councelor profile too] with swipeable sections)
+~~~~~~~~~~~~~ In-App Video/Audio Call Integration
+Native video and audio call UI for live sessions. Include call controls, screen sharing, recording consent, and connection quality indicators. Essential for remote counseling.
 
+~~~~~~~~~~~~~ Resource Library
+Browse articles, videos, exercises, and worksheets. Categories, favorites, download for offline, and recommendations based on interests. Extends support beyond sessions.
 
---task list for today:
-add coins workflow
-possibly add redux 
+~~~~~~~~~~~~~ Emergency/Crisis Support
+Quick access button to crisis resources, hotlines, and emergency contacts. Prominent placement with clear, immediate access. Critical for mental health apps.
 
+~~~~~~~~~~~~~ Appointment Reminders & Calendar Sync
+Visual calendar showing upcoming appointments with countdown timers. Option to sync with device calendar and set custom reminders. Reduces no-shows.
 
+~~~~~~~~~~~~~ Payment & Subscription Management
+Screen for managing payment methods, viewing transaction history, subscription plans, and billing. Integrate with your coin system for seamless payments.
+These features enhance engagement, safety, and usability. Prioritize based on your roadmap and user needs.
 
-quick help floating btn - chat with AI screen-----------------------
 
 
 home screen for councelors -----------------------------------------
