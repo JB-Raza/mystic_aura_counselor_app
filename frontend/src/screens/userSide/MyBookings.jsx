@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { Loader, TopHeader } from '@/components';
 import { useFocusEffect } from '@react-navigation/native';
+import { useConfirmationAlert } from '@/state/confirmationContext';
+import { Toast } from 'toastify-react-native';
 
 // Move constants outside component to prevent recreation
 const sampleBookings = [
@@ -272,6 +274,8 @@ const BookingsScreen = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const { showConfirmation, hideConfirmation } = useConfirmationAlert();
+
     // Update status bar when screen is focused
     useFocusEffect(
         useCallback(() => {
@@ -347,23 +351,27 @@ const BookingsScreen = () => {
 
     // Memoize handleCancelBooking
     const handleCancelBooking = useCallback((booking) => {
-        Alert.alert(
-            'Cancel Session',
-            `Are you sure you want to cancel your session with ${booking.counselor.name}?`,
-            [
-                { text: 'Keep Booking', style: 'cancel' },
-                {
-                    text: 'Cancel Session',
-                    style: 'destructive',
-                    onPress: () => {
-                        setBookings(prev => prev.map(b =>
-                            b.id === booking.id ? { ...b, status: 'cancelled' } : b
-                        ));
-                    },
-                },
-            ]
-        );
-    }, []);
+        showConfirmation({
+            title: "Cancel Session",
+            message: `Are you sure! You want to cancel your session with ${booking.counselor.name}?`,
+            onConfirm: () => {
+                setBookings(prev => prev.map(b =>
+                    b.id === booking.id ? { ...b, status: 'cancelled' } : b
+                ));
+                Toast.show({
+                    type: "info",
+                    text2: "Session cancelled successfully",
+                });
+                hideConfirmation();
+            },
+            onCancel: () => {
+                hideConfirmation();
+            },
+            confirmText: "Cancel Session",
+            cancelText: "Keep Booking",
+            type: "warning"
+        });
+    }, [showConfirmation, hideConfirmation]);
 
     // Memoize tab change handlers
     const handleTabChange = useCallback((tab) => {

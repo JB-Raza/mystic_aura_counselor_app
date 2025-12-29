@@ -5,6 +5,7 @@ import { COLORS } from '@/constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { InputBox } from '@/components';
 import { Toast } from 'toastify-react-native';
+import { useConfirmationAlert } from '@/state/confirmationContext';
 
 const formatTime = (timestamp) => {
     return new Date(timestamp).toLocaleTimeString([], {
@@ -157,6 +158,8 @@ export default function ChatScreen({ route }) {
     const aiResponseTimeoutRef = useRef(null);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
 
+    const { showConfirmation, hideConfirmation } = useConfirmationAlert();
+
     // placeholder chatData
     const chatData = useMemo(() => ({
         host: host || {
@@ -258,10 +261,23 @@ export default function ChatScreen({ route }) {
                 });
                 break;
             case 'delete':
-                setMessages(prev => prev.filter(msg => msg.id !== message.id));
-                Toast.show({
-                    type: "success",
-                    text2: "Message deleted!"
+                showConfirmation({
+                    title: "Delete Message",
+                    message: "Are you sure! You want to delete this message?",
+                    onConfirm: () => {
+                        setMessages(prev => prev.filter(msg => msg.id !== message.id));
+                        Toast.show({
+                            type: "success",
+                            text2: "Message deleted!"
+                        });
+                        hideConfirmation();
+                    },
+                    onCancel: () => {
+                        hideConfirmation();
+                    },
+                    confirmText: "Delete",
+                    cancelText: "Cancel",
+                    type: "danger"
                 });
                 break;
         }

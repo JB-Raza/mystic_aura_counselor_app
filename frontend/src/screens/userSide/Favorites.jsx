@@ -6,9 +6,10 @@ import { COLORS } from '@/constants/theme'
 import { VerticalCouncelorCard } from '@/components'
 import { getFavorites, removeFromFavorites } from '@/utils/favoritesUtils'
 import { Toast } from 'toastify-react-native'
+import { useConfirmationAlert } from '@/state/confirmationContext'
 import ROUTES from '@/constants/routes'
 
-// Memoized EmptyFavorites component
+//d EmptyFavorites component
 const EmptyFavorites = memo(({ onNavigate }) => (
   <View className="flex-1 items-center justify-center py-20 px-6">
     <View className="w-24 h-24 rounded-full bg-themeColor/10 items-center justify-center mb-5">
@@ -31,7 +32,7 @@ const EmptyFavorites = memo(({ onNavigate }) => (
   </View>
 ));
 
-// Memoized Loading component
+//d Loading component
 const LoadingState = memo(() => (
   <View className="flex-1 items-center justify-center">
     <View className="w-14 h-14 rounded-full bg-themeColor/10 items-center justify-center mb-3">
@@ -41,7 +42,7 @@ const LoadingState = memo(() => (
   </View>
 ));
 
-// Memoized StatsHeader component
+//d StatsHeader component
 const StatsHeader = memo(({ count }) => {
   const counselorText = useMemo(() =>
     count === 1 ? 'counselor' : 'counselors',
@@ -77,6 +78,8 @@ export default function FavoritesScreen() {
   const [favoriteCounselors, setFavoriteCounselors] = useState([])
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const { showConfirmation, hideConfirmation } = useConfirmationAlert()
 
   // Update status bar when screen is focused
   useFocusEffect(
@@ -122,27 +125,43 @@ export default function FavoritesScreen() {
    * Remove counselor from favorites using utility function
    */
   const handleRemoveFavorite = useCallback(async (counselorId) => {
-    try {
-      const success = await removeFromFavorites(counselorId)
-      if (success) {
-        // Reload favorites to update the list
-        await loadFavorites()
+    const counselor = favoriteCounselors.find(c => (c.id || c.name) === counselorId)
+    const counselorName = counselor?.name || 'this counselor'
 
-        Toast.show({
-          type: "info",
-          text2: "Counselor removed from your favorites list",
-        })
-      }
-    } catch (error) {
-      console.error('Error removing favorite:', error)
-      Toast.show({
-        type: "error",
-        text2: "Failed to remove from favorites",
-      })
-    }
-  }, [loadFavorites]);
+    showConfirmation({
+      title: "Remove from Favorites",
+      message: `Are you sure! You want to remove ${counselorName} from your favorites?`,
+      onConfirm: async () => {
+        try {
+          const success = await removeFromFavorites(counselorId)
+          if (success) {
+            // Reload favorites to update the list
+            await loadFavorites()
 
-  // Memoize navigation handler
+            Toast.show({
+              type: "success",
+              text2: "Counselor removed from your favorites list",
+            })
+          }
+        } catch (error) {
+          console.error('Error removing favorite:', error)
+          Toast.show({
+            type: "error",
+            text2: "Failed to remove from favorites",
+          })
+        }
+        hideConfirmation()
+      },
+      onCancel: () => {
+        hideConfirmation()
+      },
+      confirmText: "Remove",
+      cancelText: "Cancel",
+      type: "warning"
+    })
+  }, [loadFavorites, favoriteCounselors, showConfirmation, hideConfirmation]);
+
+  // navigation handler
   const handleNavigateToBrowse = useCallback(() => {
     try {
       navigation.navigate(ROUTES.LANDING)
@@ -151,13 +170,13 @@ export default function FavoritesScreen() {
     }
   }, [navigation]);
 
-  // Memoize keyExtractor
+  // keyExtractor
   const keyExtractor = useCallback((item) =>
     item.id?.toString() || item.name,
     []
   );
 
-  // Memoize renderItem
+  // renderItem
   const renderItem = useCallback(({ item }) => (
     <View className="px-4 mb-3">
       <VerticalCouncelorCard
@@ -168,7 +187,7 @@ export default function FavoritesScreen() {
     </View>
   ), [handleRemoveFavorite]);
 
-  // Memoize RefreshControl
+  // RefreshControl
   const refreshControl = useMemo(() => (
     <RefreshControl
       refreshing={isRefreshing}
@@ -178,7 +197,7 @@ export default function FavoritesScreen() {
     />
   ), [isRefreshing, handleRefresh]);
 
-  // Memoize contentContainerStyle
+  // contentContainerStyle
   const flatListContentStyle = useMemo(() => ({
     paddingBottom: 90,
     paddingTop: 8

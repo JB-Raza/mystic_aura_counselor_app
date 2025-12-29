@@ -562,7 +562,6 @@ export default function BookApointment() {
       {/* Session Type Selection Bottom Sheet */}
       <CustomBottomSheet
         ref={sessionTypeBottomSheetRef}
-        snapPoints={['50%']}
         onChange={() => { }}
       >
         <BottomSheetScrollView

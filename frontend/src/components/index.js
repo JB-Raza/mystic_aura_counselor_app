@@ -16,13 +16,13 @@ import SettingSection from './SettingSection';
 
 // general purpose
 import Loader from './Loader';
-import { CustomModal } from './Modals';
+import { AddPaymentMethodModal } from './Modals';
 import InputBox from './InputBox';
 
 export {
     ButtonFullWidth,
     Loader,
-    CustomModal,
+    AddPaymentMethodModal,
     AnimatedStarBg,
     CouncelorCard,
     VerticalCouncelorCard,

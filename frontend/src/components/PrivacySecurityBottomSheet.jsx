@@ -5,6 +5,7 @@ import { COLORS } from "@/constants/theme";
 import { Pressable, Text, View, Switch } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Toast } from 'toastify-react-native';
+import { useConfirmationAlert } from '@/state/confirmationContext';
 
 // Memoized SettingItem component with custom comparison
 const SettingItem = memo(({ icon, title, description, value, onToggle, onPress, rightComponent, isLast }) => {
@@ -162,6 +163,8 @@ const PrivacySecurityBottomSheet = ({ ref, onChange, currentSettings = {}, onSav
     
     // Use ref to track if component is mounted to prevent state updates after unmount
     const isMountedRef = useRef(true);
+
+    const { showConfirmation, hideConfirmation } = useConfirmationAlert();
     
     useEffect(() => {
         return () => {
@@ -302,11 +305,24 @@ const PrivacySecurityBottomSheet = ({ ref, onChange, currentSettings = {}, onSav
 
     // Memoize handleDeleteAccount
     const handleDeleteAccount = useCallback(() => {
-        Toast.show({
-            type: "info",
-            text2: "Account deletion requires additional verification. Please contact support.",
+        showConfirmation({
+            title: "Delete Account",
+            message: "Are you sure! You want to permanently delete your account? This action cannot be undone.",
+            onConfirm: () => {
+                Toast.show({
+                    type: "info",
+                    text2: "Account deletion requires additional verification. Please contact support.",
+                });
+                hideConfirmation();
+            },
+            onCancel: () => {
+                hideConfirmation();
+            },
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            type: "danger"
         });
-    }, []);
+    }, [showConfirmation, hideConfirmation]);
 
     return (
         <CustomBottomSheet

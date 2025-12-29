@@ -5,6 +5,7 @@ import { COLORS } from '@/constants/theme';
 import { IMAGES } from '@/constants/images';
 import { GradientContainer, ButtonFullWidth } from '@/components';
 import { Toast } from 'toastify-react-native';
+import { useConfirmationAlert } from '@/state/confirmationContext';
 
 
 const QUICK_AMOUNTS = [50, 100, 200, 500];
@@ -182,6 +183,8 @@ const WithdrawCoinsScreen = () => {
     const [withdrawalAmount, setWithdrawalAmount] = useState('');
     const [selectedMethod, setSelectedMethod] = useState('paypal');
     const [withdrawLoading, setWithdrawLoading] = useState(false);
+
+    const { showConfirmation, hideConfirmation } = useConfirmationAlert()
 
     // selected method data
     const selectedMethodData = useMemo(() =>
@@ -518,7 +521,23 @@ const WithdrawCoinsScreen = () => {
                         <ButtonFullWidth
                             text={`Withdraw ${withdrawalAmount} Coins`}
                             gradient={buttonGradient}
-                            onPress={handleWithdraw}
+                            // onPress={handleWithdraw}
+                            onPress={() => {
+                                showConfirmation({
+                                    title: "Withdrawal Confirmation",
+                                    message: "Are you sure! You want to withdraw this amount?",
+                                    onConfirm: () => {
+                                        handleWithdraw()
+                                        hideConfirmation()
+                                    },
+                                    onCancel: () => {
+                                        hideConfirmation()
+                                    },
+                                    confirmText: "Purchase",
+                                    cancelText: "Cancel",
+                                    type: "info"
+                                })
+                            }}
                             loading={withdrawLoading}
                             loadingText="Processing..."
                             icon="arrow-down"

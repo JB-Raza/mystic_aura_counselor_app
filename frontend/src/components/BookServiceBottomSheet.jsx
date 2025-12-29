@@ -187,7 +187,6 @@ const BookServiceBottomSheet = ({ ref, onChange, data, navigateTo }) => {
     <CustomBottomSheet
       ref={ref}
       onChange={onChange}
-      snapPoints={['50%', '85%']}
     >
       <View className="flex-1">
         <BottomSheetScrollView

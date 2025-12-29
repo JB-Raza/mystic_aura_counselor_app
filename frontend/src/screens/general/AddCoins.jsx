@@ -3,9 +3,10 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
-import { CustomModal, GradientContainer, ButtonFullWidth } from '@/components';
+import { AddPaymentMethodModal, GradientContainer, ButtonFullWidth } from '@/components';
 
 import { Toast } from 'toastify-react-native';
+import { useConfirmationAlert } from '@/state/confirmationContext';
 
 const COIN_PACKAGES = [
     {
@@ -207,12 +208,14 @@ const CoinPurchaseScreen = () => {
     const [addPaymentModalVisible, setAddPaymentModalVisible] = useState(false);
     const [purchaseLoading, setPurchaseLoading] = useState(false);
 
-    const sessionsAvailable = useMemo(() => 
+    const { showConfirmation, hideConfirmation } = useConfirmationAlert()
+
+    const sessionsAvailable = useMemo(() =>
         Math.floor(currentBalance / 10),
         [currentBalance]
     );
 
-    const totalCoins = useMemo(() => 
+    const totalCoins = useMemo(() =>
         selectedPackage ? selectedPackage.coins + (selectedPackage.bonus || 0) : 0,
         [selectedPackage]
     );
@@ -252,6 +255,7 @@ const CoinPurchaseScreen = () => {
 
         try {
             setPurchaseLoading(true);
+
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             Toast.show({
@@ -391,7 +395,7 @@ const CoinPurchaseScreen = () => {
                             </Text>
                         </View>
                     </View>
-                    <CustomModal
+                    <AddPaymentMethodModal
                         visible={addPaymentModalVisible}
                         onClose={handleCloseModal}
                         onAdd={handleAddPayment}
@@ -424,7 +428,22 @@ const CoinPurchaseScreen = () => {
                         <ButtonFullWidth
                             text={`Purchase ${totalCoins} Coins`}
                             gradient={buttonGradient}
-                            onPress={handlePurchase}
+                            onPress={() => {
+                                showConfirmation({
+                                    title: "Purchase Confirmation",
+                                    message: "Are you sure you want to purchase this package?",
+                                    onConfirm: () => {
+                                        handlePurchase()
+                                        hideConfirmation()
+                                    },
+                                    onCancel: () => {
+                                        hideConfirmation()
+                                    },
+                                    confirmText: "Purchase",
+                                    cancelText: "Cancel",
+                                    type: "info"
+                                })
+                            }}
                             loading={purchaseLoading}
                             loadingText="Processing..."
                             icon="diamond"
