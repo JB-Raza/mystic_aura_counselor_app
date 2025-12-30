@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import InputBox from './InputBox';
 
 // add payment method modal
-export const AddPaymentMethodModal = ({ visible, onClose, onAdd }) => {
+export const AddPaymentMethodModal = memo(({ visible, onClose, onAdd }) => {
     const [cardNumber, setCardNumber] = useState('');
     const [expiry, setExpiry] = useState('');
     const [cvv, setCvv] = useState('');
@@ -86,10 +86,10 @@ export const AddPaymentMethodModal = ({ visible, onClose, onAdd }) => {
             </View>
         </Modal>
     );
-};
+});
 
 
-export const ConfirmationDialog = ({
+export const ConfirmationDialog = memo(({
   visible,
   title,
   message,
@@ -143,12 +143,12 @@ export const ConfirmationDialog = ({
         >
           <View className="bg-white rounded-2xl p-6 shadow-lg">
             {/* Title */}
-            <Text className="text-xl font-InterBold text-slate-800 text-center mb-3">
+            <Text className="text-lg font-InterBold text-slate-800 text-center mb-3">
               {title}
             </Text>
             
             {/* Message */}
-            <Text className="text-base font-Inter text-gray-600 text-center mb-6 leading-5">
+            <Text className="text-sm font-Inter text-gray-600 text-center mb-6 leading-5">
               {message}
             </Text>
             
@@ -157,9 +157,9 @@ export const ConfirmationDialog = ({
               {/* Cancel Button */}
               <TouchableOpacity 
                 onPress={onCancel}
-                className={`flex-1 rounded-xl py-3 ${colors.cancel}`}
+                className={`flex-1 rounded-xl py-2 ${colors.cancel}`}
               >
-                <Text className={`text-center font-InterSemibold ${colors.cancelText}`}>
+                <Text className={`text-center text-sm font-InterSemibold ${colors.cancelText}`}>
                   {cancelText}
                 </Text>
               </TouchableOpacity>
@@ -167,9 +167,9 @@ export const ConfirmationDialog = ({
               {/* Confirm Button */}
               <TouchableOpacity 
                 onPress={onConfirm}
-                className={`flex-1 rounded-xl py-3 ${colors.confirm}`}
+                className={`flex-1 rounded-xl py-2 ${colors.confirm}`}
               >
-                <Text className={`text-center font-InterSemibold ${colors.confirmText}`}>
+                <Text className={`text-center text-sm font-InterSemibold ${colors.confirmText}`}>
                   {confirmText}
                 </Text>
               </TouchableOpacity>
@@ -179,4 +179,4 @@ export const ConfirmationDialog = ({
       </TouchableOpacity>
     </Modal>
   );
-};
+});

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { View, Text, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, Keyboard, Pressable } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
 import { useNavigation } from '@react-navigation/native';
@@ -19,21 +20,24 @@ const MessageBubble = memo(({ message, onLongPress }) => {
     const formattedTime = useMemo(() => formatTime(message.timestamp), [message.timestamp]);
 
     return (
-        <TouchableOpacity
-            onLongPress={onLongPress}
-            delayLongPress={500}
-            className={`max-w-[80%] mb-3 ${isCustomer ? 'self-end' : 'self-start'}`}
-        >
-            <View
-                className={`rounded-2xl p-3 ${isCustomer
-                    ? 'bg-themeColor rounded-br-md'
-                    : 'bg-gray-100 rounded-bl-md'
-                    }`}
-            >
-                <Text className={`text-sm ${isCustomer ? 'text-white' : 'text-slate-800'
-                    } font-InterRegular`}>
-                    {message.text}
-                </Text>
+        <TouchableOpacity onLongPress={onLongPress} delayLongPress={500} className={`rounded-xl`}>
+            <View className={`bg-themeColor/20  rounded-2xl max-w-[80%] gap-2 ${isCustomer ? "self-end" : "self-start"}`}>
+                {message.repliedToMsg?.trim() !== "" && message.repliedToMsg !== null && <View className={`px-4 pt-1.5`}>
+                    <Text className='text-[11px] line-clamp-2 text-themeColor'>{message.repliedToMsg}</Text>
+                </View>}
+                <View>
+                    <View
+                        className={`rounded-2xl shadow-md p-3 ${isCustomer
+                            ? 'bg-themeColor shadow-themeColor rounded-br-md'
+                            : 'bg-gray-200 rounded-bl-md'
+                            }  `}
+                    >
+                        <Text className={`text-sm ${isCustomer ? 'text-white' : 'text-slate-800'
+                            } font-InterRegular`}>
+                            {message.text}
+                        </Text>
+                    </View>
+                </View>
             </View>
 
             <View className={`flex-row items-center gap-1 mt-1 ${isCustomer ? 'justify-end' : 'justify-start'
@@ -154,6 +158,7 @@ export default function ChatScreen({ route }) {
     const [messages, setMessages] = useState(INITIAL_MESSAGES);
     const [newMessage, setNewMessage] = useState('');
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [replyingToMsg, setReplyingToMsg] = useState("")
     const messagesFlatListRef = useRef(null);
     const aiResponseTimeoutRef = useRef(null);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -197,16 +202,22 @@ export default function ChatScreen({ route }) {
     const sendMessage = useCallback(() => {
         if (newMessage.trim() === '') return;
 
+        let currReplyingToMsg = replyingToMsg
         const message = {
             id: Date.now().toString(),
             text: newMessage.trim(),
             sender: 'customer',
             timestamp: new Date(),
             type: 'text',
-            read: false
+            read: false,
+            repliedToMsg: currReplyingToMsg || ""
         };
 
         setMessages(prev => [message, ...prev]);
+        if (replyingToMsg) {
+            setReplyingToMsg("")
+            currReplyingToMsg = ""
+        }
         setNewMessage('');
 
         // Simulate AI/Counselor response after 2 seconds
@@ -223,13 +234,14 @@ export default function ChatScreen({ route }) {
                     sender: 'host',
                     timestamp: new Date(),
                     type: 'text',
-                    read: false
+                    read: false,
+                    repliedToMsg: currReplyingToMsg || ""
                 };
 
                 setMessages(prev => [aiResponse, ...prev]);
             }, 2000);
         }
-    }, [newMessage, chatData.chatType]);
+    }, [newMessage, chatData.chatType, replyingToMsg]);
 
     const handleMessageLongPress = useCallback((message) => {
         setSelectedMessage(message);
@@ -240,19 +252,20 @@ export default function ChatScreen({ route }) {
 
         switch (action) {
             case 'copy':
-                Toast.show({
-                    type: "success",
-                    text2: "Message copied to clipboard"
-                });
-                break;
-            case 'forward':
-                Toast.show({
-                    type: "info",
-                    text2: "Forward message functionality"
+                Clipboard.setStringAsync(message.text).then(() => {
+                    Toast.show({
+                        type: "success",
+                        text2: "Message copied to clipboard"
+                    });
+                }).catch(() => {
+                    Toast.show({
+                        type: "error",
+                        text2: "Failed to copy message"
+                    });
                 });
                 break;
             case 'reply':
-                setNewMessage(`Replying to: "${message.text}" `);
+                setReplyingToMsg(message.text)
                 break;
             case 'select':
                 Toast.show({
@@ -346,6 +359,7 @@ export default function ChatScreen({ route }) {
                             keyExtractor={(item) => item.id}
                             renderItem={renderMessage}
                             className="px-4 py-5"
+                            ItemSeparatorComponent={<View className='h-[7px]'></View>}
                             contentContainerStyle={{ paddingBottom: 30 }}
                             showsVerticalScrollIndicator={false}
                             onContentSizeChange={handleContentSizeChange}
@@ -355,6 +369,13 @@ export default function ChatScreen({ route }) {
 
                     {/* Input Area */}
                     <View className={`bg-white border-t border-gray-200 px-4 pt-3`} style={{ paddingBottom: keyboardHeight || 10 }}>
+                        {/* show only when replying */}
+                        {replyingToMsg !== "" && <View className='mb-4 relative px-4'>
+                            <Pressable className='absolute right-2' onPress={() => setReplyingToMsg("")}>
+                                <Ionicons name='close' color={COLORS.themeColor} size={16} />
+                            </Pressable>
+                            <Text className='text-[11px] line-clamp-2 text-gray-500'>{replyingToMsg}</Text>
+                        </View>}
                         <View className="flex-row items-center gap-2">
                             <TouchableOpacity className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
                                 <Ionicons name="add" size={20} color={COLORS.grey} />
@@ -382,6 +403,7 @@ export default function ChatScreen({ route }) {
                             </TouchableOpacity>
                         </View>
                     </View>
+
                 </View>
 
             </KeyboardAvoidingView>
@@ -409,7 +431,9 @@ const INITIAL_MESSAGES = [
         sender: 'host',
         timestamp: new Date(Date.now() - 3600000),
         type: 'text',
-        read: true
+        read: true,
+        repliedToMsg: null
+
     },
     {
         id: '2',
@@ -417,7 +441,8 @@ const INITIAL_MESSAGES = [
         sender: 'customer',
         timestamp: new Date(Date.now() - 3500000),
         type: 'text',
-        read: true
+        read: true,
+        repliedToMsg: null
     },
     {
         id: '3',
@@ -425,7 +450,8 @@ const INITIAL_MESSAGES = [
         sender: 'host',
         timestamp: new Date(Date.now() - 3400000),
         type: 'text',
-        read: true
+        read: true,
+        repliedToMsg: null
     },
     {
         id: '4',
@@ -433,7 +459,8 @@ const INITIAL_MESSAGES = [
         sender: 'customer',
         timestamp: new Date(Date.now() - 3300000),
         type: 'text',
-        read: true
+        read: true,
+        repliedToMsg: null
     },
     {
         id: '5',
@@ -441,7 +468,8 @@ const INITIAL_MESSAGES = [
         sender: 'host',
         timestamp: new Date(Date.now() - 3200000),
         type: 'text',
-        read: false
+        read: false,
+        repliedToMsg: null
     },
     {
         id: '6',
@@ -449,7 +477,8 @@ const INITIAL_MESSAGES = [
         sender: 'host',
         timestamp: new Date(Date.now() - 3200000),
         type: 'text',
-        read: false
+        read: false,
+        repliedToMsg: null
     },
     {
         id: '7',
@@ -457,7 +486,8 @@ const INITIAL_MESSAGES = [
         sender: 'host',
         timestamp: new Date(Date.now() - 3200000),
         type: 'text',
-        read: false
+        read: false,
+        repliedToMsg: null
     },
     {
         id: '8',
@@ -465,7 +495,8 @@ const INITIAL_MESSAGES = [
         sender: 'customer',
         timestamp: new Date(Date.now() - 3200000),
         type: 'text',
-        read: false
+        read: false,
+        repliedToMsg: null
     },
 ];
 
@@ -479,8 +510,8 @@ const AI_RESPONSES = [
 
 const MESSAGE_ACTIONS = [
     { icon: 'copy', label: 'Copy', action: 'copy' },
-    { icon: 'arrow-redo', label: 'Forward', action: 'forward' },
+    // { icon: 'arrow-redo', label: 'Forward', action: 'forward' },
     { icon: 'arrow-undo', label: 'Reply', action: 'reply' },
-    { icon: 'checkbox', label: 'Select', action: 'select' },
+    // { icon: 'checkbox', label: 'Select', action: 'select' },
     { icon: 'trash', label: 'Delete', action: 'delete', destructive: true },
 ];
