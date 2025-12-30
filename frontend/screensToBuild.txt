@@ -1,3 +1,15 @@
+fix the intro screen UI
+decrease the font size in the whole app as it is too big for phones
+findout how to preload the screens (under normal priority which means that first load the important parts like landing screen and its components, then the tab screens that other screens.) and resources while the app is in idle state so that user doesn't have to wait while navigating. 
+
+__________________
+an i do something that first the layout gets loaded then the logic.
+can i somehow set the priority of each screen or component in which they will be loaded.
+like the landing screen is most important, load it first, then the tab screens are important. then load them, then other screens , load them.
+also lets say if user opened the app. he is at home screen. lets say he stayed there for about 5 seconds. now till that time the app is doing nothing. can i somehow utilize that time and in that time, download the other parts of my app so that when user goes to those screens, it don't have to wait alot.
+__________________
+
+
 ~~~~~~~~~~~~~ Session History & Notes
 Display past sessions with notes, transcripts, and action items. Include a calendar view, searchable history, and downloadable session summaries. Helps users track progress and review insights.
 
@@ -28,7 +40,6 @@ These features enhance engagement, safety, and usability. Prioritize based on yo
 home screen for councelors -----------------------------------------
 bidding by concelor on user issues (screens) -----------------------
 councelor dashboard (earning, sessions stats, rating, showing clients served, current clients, new clients (filter all these in signle table))
-favourite doctors screen-------------------------------------------- 
 
 
 

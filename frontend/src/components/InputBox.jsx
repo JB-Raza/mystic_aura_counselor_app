@@ -15,6 +15,7 @@ export default function InputBox({ label = "", value, setValue, icon, showClearB
                     placeholder={placeholder}
                     className="font-InterRegular text-slate-800 text-base flex-1"
                     placeholderTextColor="#9CA3AF"
+                    keyboardType='default'
                     {...args}
                 />
                 {showClearBtn && value.length > 0 && (
