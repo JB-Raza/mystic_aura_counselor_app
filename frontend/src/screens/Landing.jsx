@@ -1,12 +1,16 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import HomeScreen from './main/HomeScreen'
-import UserProfile from './userSide/UserProfile'
+
+// screens
+import HomeScreen from "./main/HomeScreen"
+import UserProfile from "./userSide/UserProfile"
+import MyBookingsScreen from "./userSide/MyBookings"
+import AllChatsScreen from "./general/AllChatsScreen"
+
+// other
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
-import { MyBookingsScreen } from '.'
-import AllChatsScreen from './general/AllChatsScreen'
 
 const Tab = createBottomTabNavigator()
 
@@ -22,7 +26,7 @@ const ICON_MAP = {
 const TabBarIcon = React.memo(({ routeName, focused }) => {
     const iconConfig = ICON_MAP[routeName] || { focused: 'ellipse-outline', unfocused: 'ellipse-outline' };
     const iconName = focused ? iconConfig.focused : iconConfig.unfocused;
-    
+
     return (
         <View className="items-center justify-center relative w-full mb-0.5">
             <View className={`items-center justify-center w-11 h-11 rounded-[14px] mb-1 ${focused ? 'bg-themeColor/12' : ''}`}>
@@ -72,17 +76,14 @@ export default function Landing() {
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarItemStyle: {
             paddingVertical: 2,
-        },
-        // Performance optimizations
-        animationEnabled: true,
-        swipeEnabled: false, // Disable swipe for better performance
-        detachInactiveScreens: true, // Detach inactive screens to free memory
+        }
     }), []);
 
     return (
         <Tab.Navigator
             initialRouteName='Home'
             screenOptions={screenOptions}
+
         >
             <Tab.Screen
                 name='Home'

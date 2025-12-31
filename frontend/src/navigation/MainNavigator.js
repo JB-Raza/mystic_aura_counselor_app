@@ -14,7 +14,7 @@ const NotificationScreen = lazy(() => import('@/screens/main/NotificationScreen'
 
 
 // user side
-const EditProfile = lazy(() => import('@/screens/userSide/EditProfile'), 4000)
+const EditProfile = lazy(() => import('@/screens/userSide/EditProfile'))
 const BookApointment = lazy(() => import('@/screens/userSide/BookApointment'))
 const ConfirmBooking = lazy(() => import('@/screens/userSide/ConfirmBooking'))
 const FavoritesScreen = lazy(() => import('@/screens/userSide/Favorites'))

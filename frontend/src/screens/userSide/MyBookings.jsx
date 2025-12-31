@@ -116,7 +116,7 @@ const getTypeIcon = (type) => {
     }
 };
 
-// Memoized BookingCard component
+//d BookingCard component
 const BookingCard = memo(({ booking, onJoinSession, onCancelBooking }) => {
     const bookingDate = useMemo(() => new Date(booking.date), [booking.date]);
     const now = useMemo(() => new Date(), []);
@@ -220,7 +220,7 @@ const BookingCard = memo(({ booking, onJoinSession, onCancelBooking }) => {
     );
 });
 
-// Memoized EmptyBookings component
+//d EmptyBookings component
 const EmptyBookings = memo(({ activeTab }) => {
     const emptyText = useMemo(() => {
         if (activeTab === 'upcoming') {
@@ -254,7 +254,7 @@ const EmptyBookings = memo(({ activeTab }) => {
     );
 });
 
-// Memoized TabButton component
+//d TabButton component
 const TabButton = memo(({ title, count, isActive, onPress }) => (
     <TouchableOpacity
         className={`flex-1 py-2.5 px-3 rounded-xl items-center ${isActive ? 'bg-themeColor' : 'bg-gray-100'}`}
@@ -284,27 +284,33 @@ const BookingsScreen = () => {
         }, [])
     );
 
-    // Memoize loadBookings
+    // loadBookings
     const loadBookings = useCallback(async () => {
         setLoading(true);
-        setTimeout(() => {
-            setBookings(sampleBookings);
-            setLoading(false);
-        }, 1000);
+        try {
+        setBookings(sampleBookings); 
+        } catch (error) {
+        throw new Error(error?.message || "something went wrong - unable to load bookings")            
+        }
+        setLoading(false);
     }, []);
 
     useEffect(() => {
         loadBookings();
     }, [loadBookings]);
 
-    // Memoize onRefresh
+    // onRefresh
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await loadBookings();
+        const timeout = setTimeout(() => {
+            loadBookings();
+        }, 1000)
         setRefreshing(false);
+
+        return () => clearTimeout(timeout)
     }, [loadBookings]);
 
-    // Memoize filteredBookings
+    // filteredBookings
     const filteredBookings = useMemo(() => {
         const now = new Date();
         return bookings.filter(booking => {
@@ -323,7 +329,7 @@ const BookingsScreen = () => {
         });
     }, [bookings, activeTab]);
 
-    // Memoize tab counts
+    // tab counts
     const tabCounts = useMemo(() => {
         const now = new Date();
         return {
@@ -333,7 +339,7 @@ const BookingsScreen = () => {
         };
     }, [bookings]);
 
-    // Memoize handleJoinSession
+    // handleJoinSession
     const handleJoinSession = useCallback((booking) => {
         if (booking.type === 'video' && booking.meetingLink) {
             Alert.alert(
@@ -349,7 +355,7 @@ const BookingsScreen = () => {
         }
     }, []);
 
-    // Memoize handleCancelBooking
+    // handleCancelBooking
     const handleCancelBooking = useCallback((booking) => {
         showConfirmation({
             title: "Cancel Session",
@@ -373,12 +379,12 @@ const BookingsScreen = () => {
         });
     }, [showConfirmation, hideConfirmation]);
 
-    // Memoize tab change handlers
+    // tab change handlers
     const handleTabChange = useCallback((tab) => {
         setActiveTab(tab);
     }, []);
 
-    // Memoize FlatList renderItem
+    // FlatList renderItem
     const renderBookingCard = useCallback(({ item }) => (
         <BookingCard
             booking={item}
@@ -387,10 +393,10 @@ const BookingsScreen = () => {
         />
     ), [handleJoinSession, handleCancelBooking]);
 
-    // Memoize keyExtractor
+    // keyExtractor
     const keyExtractor = useCallback((item) => item.id, []);
 
-    // Memoize ListEmptyComponent
+    // ListEmptyComponent
     const renderEmpty = useCallback(() => (
         <EmptyBookings activeTab={activeTab} />
     ), [activeTab]);
