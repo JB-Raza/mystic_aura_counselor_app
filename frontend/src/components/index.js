@@ -18,24 +18,30 @@ import SettingSection from './SettingSection';
 import Loader from './Loader';
 import { AddPaymentMethodModal } from './Modals';
 import InputBox from './InputBox';
+import SearchBar from './SearchBar';
+import Backdrop from "./Backdrop"
+import FilterBottomSheet from './FilterBottomSheet';
 
 export {
-    ButtonFullWidth,
-    Loader,
-    AddPaymentMethodModal,
-    AnimatedStarBg,
-    CouncelorCard,
-    VerticalCouncelorCard,
-    ReviewCard,
-    CustomBackdrop,
-    CustomBottomSheet,
-    BookServiceBottomSheet,
-    EditInterestsBottomSheet,
-    PrivacySecurityBottomSheet,
-    HorizontalDivider,
-    RadioButton,
-    TopHeader,
-    GradientContainer,
-    SettingSection,
-    InputBox,
-}
+  ButtonFullWidth,
+  Loader,
+  TopHeader,
+  AddPaymentMethodModal,
+  AnimatedStarBg,
+  CouncelorCard,
+  VerticalCouncelorCard,
+  ReviewCard,
+  CustomBackdrop,
+  CustomBottomSheet,
+  BookServiceBottomSheet,
+  EditInterestsBottomSheet,
+  PrivacySecurityBottomSheet,
+  HorizontalDivider,
+  RadioButton,
+  GradientContainer,
+  SettingSection,
+  InputBox,
+  SearchBar,
+  Backdrop,
+  FilterBottomSheet,
+};
