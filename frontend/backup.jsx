@@ -1,69 +1,119 @@
-  {/* Header Section */}
-        <View className="py-5 mx-auto mb-0 w-full px-3">
 
-          <Animated.View
-            className={`relative gap-3 items-center pt-5`}>
-            {/* profile image */}
-            <Animated.View
-              style={animatedImageStyle}
-              className="relative  shadow-md mx-auto rounded-full justify-center">
-              <Animated.Image
-                source={data.avatar}
-                className="w-full h-full border-[4px] border-themeColor  rounded-full"
-              />
+<CustomBottomSheet ref={sheetRef}>
+<BottomSheetView className="px-5 pb-6 pt-5">
+  {/* Header */}
+  <View className="mb-6 flex-row items-center justify-between">
+    <View className="flex-row items-center gap-3">
+      <View className="rounded-xl bg-themeColor/10 p-2.5">
+        <Ionicons name="filter" size={20} color={COLORS.themeColor} />
+      </View>
+      <View>
+        <Text className="font-InterBold text-[18px] text-slate-800">Filter Options</Text>
+        <Text className="mt-0.5 font-Inter text-[12px] text-gray-500">
+          Refine your search
+        </Text>
+      </View>
+    </View>
+    <Pressable
+      onPress={handleCloseFilterSheet}
+      className="rounded-full p-2 active:bg-gray-100">
+      <Ionicons name="close" size={22} color={COLORS.grey} />
+    </Pressable>
+  </View>
 
-              {/* online dot */}
-              <View className='h-[8px] w-[8px] !rounded-full bg-green-500 absolute right-4 bottom-0'></View>
-            </Animated.View>
+  {/* Price Filter */}
+  <View className="mb-6">
+    <Text className="mb-3 font-InterSemibold text-[15px] text-slate-800">Price Range</Text>
+    <View className="flex-row gap-2.5">
+      {priceOptions.map((option) => (
+        <PriceOptionItem
+          key={option.value}
+          option={option}
+          isSelected={filter?.priceFilter === option.value}
+          onPress={() => handlePriceFilterChange(option.value)}
+        />
+      ))}
+    </View>
+  </View>
 
-            {/* rating */}
-            <Animated.View
-              style={ratingCapsuleStyle}
-              className={`absolute right-0 top-5 px-3 py-1 rounded-full bg-themeColor flex-row items-center gap-1`}>
-              <Ionicons name="star" size={13} color="white" />
-              <Text className='text-white font-semibold text-[12px]'>{data.rating}</Text>
-            </Animated.View>
-            {/* name and tag */}
-            <Animated.View
-              style={nameSectionStyle}
-            >
-              <Text className="text-[18px] text- font-Inter-Bold font-bold text-neutral-800">
-                {data?.name}
-              </Text>
-              <Text className="text-[12px] text-themeColor font-semibold mt-0.5">
-                {data?.tag} Expert
-              </Text>
-            </Animated.View>
-
-            {/* highlight section */}
-            <Animated.View
-              style={animatedHighlightSection}
-
-              className="flex-row w-full justify-between items-center mt-10 px-3 gap-4">
-              {/* wait time */}
-              <View className='py-0.5 items-center'>
-                <Text className="text-[12px] text-slate-700 font-semibold text-center">Under 15 Min</Text>
-                <Text className="text-[11px] text-themeColor/80 font-semibold">Wait Time</Text>
-              </View>
-
-              {/* vertical divider */}
-              <View className='h-[95%] rounded-full w-[2px] bg-themeColor/80'></View>
-
-              {/* experience */}
-              <View className='py-0.5 items-center'>
-                <Text className="text-[12px] text-slate-700 font-semibold text-center">10 Years</Text>
-                <Text className="text-[11px] text-themeColor/80 font-semibold">Experience</Text>
-              </View>
-
-              {/* vertical divider */}
-              <View className='h-[95%] rounded-full w-[2px] bg-themeColor/80'></View>
-
-              {/* satisfication rate */}
-              <View className='py-0.5 items-center'>
-                <Text className="text-[12px] text-slate-700 font-semibold text-center">100% (16)</Text>
-                <Text className="text-[11px] text-themeColor/80 font-semibold">Satisfied</Text>
-              </View>
-
-            </Animated.View>
-          </Animated.View>
+  {/* Rating Filter */}
+  <View className="mb-6">
+    <Text className="mb-3 font-InterSemibold text-[15px] text-slate-800">
+      Minimum Rating
+    </Text>
+    <View className="rounded-xl bg-gray-50 px-4 py-3.5">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-1.5">
+          {STARS.map((star) => (
+            <StarRatingItem
+              key={star}
+              star={star}
+              isSelected={(filter?.rating || 1) >= star}
+              onPress={() => handleRatingChange(star)}
+            />
+          ))}
         </View>
+        <View className="rounded-lg border border-gray-200 bg-white px-3 py-1.5">
+          <Text className="font-InterSemibold text-[12px] text-slate-700">
+            {filterRatingDisplay}
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+
+  {/* Availability Filter */}
+  <View className="mb-6">
+    <Text className="mb-3 font-InterSemibold text-[15px] text-slate-800">Availability</Text>
+    <View className="rounded-xl bg-gray-50 px-4 py-3.5">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-3">
+          <View className="h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+            <Ionicons name="wifi" size={18} color="#10B981" />
+          </View>
+          <View className="flex-1">
+            <Text className="font-InterSemibold text-[14px] text-slate-700">
+              Online Now
+            </Text>
+            <Text className="mt-0.5 font-Inter text-[11px] text-gray-500">
+              Currently available
+            </Text>
+          </View>
+          <Switch
+            value={filter?.online || false}
+            onValueChange={handleOnlineToggle}
+            thumbColor="#FFFFFF"
+            trackColor={{ false: '#D1D5DB', true: COLORS.themeColor }}
+            ios_backgroundColor="#D1D5DB"
+          />
+        </View>
+      </View>
+    </View>
+  </View>
+
+  {/* Action Buttons */}
+  <View className="mt-2 flex-row gap-3">
+    <Pressable
+      onPress={handleResetFilters}
+      className="flex-1 rounded-xl border-2 border-gray-300 py-3.5 active:bg-gray-50">
+      <Text className="text-center font-InterSemibold text-[14px] text-gray-700">
+        Reset All
+      </Text>
+    </Pressable>
+    <Pressable
+      onPress={handleCloseFilterSheet}
+      className="flex-1 rounded-xl bg-themeColor py-3.5 active:opacity-90"
+      style={{
+        shadowColor: COLORS.themeColor,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+      }}>
+      <Text className="text-center font-InterSemibold text-[14px] text-white">
+        Apply Filters
+      </Text>
+    </Pressable>
+  </View>
+</BottomSheetView>
+</CustomBottomSheet>

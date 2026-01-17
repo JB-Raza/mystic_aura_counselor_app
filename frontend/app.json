@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "mysticAura",
-    "slug": "jahanzaib",
+    "slug": "mysticaura",
     "version": "1.0.0",
     "web": {
       "favicon": "./assets/icon.jpg"
@@ -31,9 +31,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "e8f91b06-c88a-49cd-82bc-dc0fe0bec9fe"
+        "projectId": "5305ab5b-050d-4d5d-93d0-ba76ee19639b"
       }
     },
-    "owner": "jahanzaib93202"
+    "owner": "jraza"
   }
 }

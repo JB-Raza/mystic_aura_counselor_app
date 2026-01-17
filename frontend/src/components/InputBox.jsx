@@ -3,7 +3,7 @@ import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
 
-export default function InputBox({ label = "", value, setValue, icon, showClearBtn, placeholder, parentClassName, className = "", ...args }) {
+export default function InputBox({ label = "", value, setValue, icon, showClearBtn, placeholder, parentClassName, className = "", keyboardType="default", ...args }) {
     return (
         <View className={parentClassName}>
             {label && <Text className="font-InterMedium text-slate-700 mb-2">{label}</Text>}
@@ -15,10 +15,11 @@ export default function InputBox({ label = "", value, setValue, icon, showClearB
                     placeholder={placeholder}
                     className="font-InterRegular text-slate-800 text-base flex-1"
                     placeholderTextColor="#9CA3AF"
-                    keyboardType='default'
+                    keyboardType={keyboardType}
+                    blurOnSubmit={true}
                     {...args}
                 />
-                {showClearBtn && value.length > 0 && (
+                {showClearBtn && value?.length > 0 && (
                     <TouchableOpacity onPress={() => setValue('')}>
                         <Ionicons name="close-circle" size={20} color={COLORS.grey} />
                     </TouchableOpacity>

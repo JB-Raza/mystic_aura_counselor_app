@@ -6,7 +6,7 @@ export const ROUTES = {
   LOGIN: 'Login',
   FORGET_PASSWORD: 'ForgetPassword',
   INTRO: 'IntroScreen',
-  
+
   // Main/General
   NOTIFICATIONS: 'Notifications',
   APPEARANCE: 'Appearance',
@@ -15,14 +15,15 @@ export const ROUTES = {
   ADD_COINS: 'AddCoins',
   WITHDRAW_COINS: 'WithdrawCoins',
   CHAT_SCREEN: 'ChatScreen',
-  
+  SEARCH_SCREEN: 'SearchScreen',
+
   // User Side
   EDIT_PROFILE: 'EditProfile',
   BOOK_APPOINTMENT: 'BookApointment',
   CONFIRM_BOOKING: 'ConfirmBooking',
   FAVORITES: 'Favorites',
-  MY_BOOKINGS: "MyBookings",
-  
+  MY_BOOKINGS: 'MyBookings',
+  USER_PROFILE: "UserProfile",
   // Counselor Side
   COUNSELOR_PROFILE: 'CouncelorProfile',
 };
@@ -49,12 +50,7 @@ export const {
 } = ROUTES;
 
 // Arrays for different screen categories
-export const AUTH_ROUTES = [
-  ROUTES.LANDING,
-  ROUTES.LOGIN,
-  ROUTES.FORGET_PASSWORD,
-  ROUTES.INTRO,
-];
+export const AUTH_ROUTES = [ROUTES.LANDING, ROUTES.LOGIN, ROUTES.FORGET_PASSWORD, ROUTES.INTRO];
 
 export const MAIN_ROUTES = [
   ROUTES.NOTIFICATIONS,
@@ -73,9 +69,7 @@ export const USER_ROUTES = [
   ROUTES.FAVORITES,
 ];
 
-export const COUNSELOR_ROUTES = [
-  ROUTES.COUNSELOR_PROFILE,
-];
+export const COUNSELOR_ROUTES = [ROUTES.COUNSELOR_PROFILE];
 
 // Screens that should not show header
 export const NO_HEADER_SCREENS = [
@@ -85,6 +79,8 @@ export const NO_HEADER_SCREENS = [
   ROUTES.FORGET_PASSWORD,
   ROUTES.INTRO,
   ROUTES.CHAT_SCREEN,
+  ROUTES.SEARCH_SCREEN,
+  ROUTES.USER_PROFILE,
 ];
 
 // Screen titles mapping
@@ -104,13 +100,9 @@ export const SCREEN_TITLES = {
   [ROUTES.BOOK_APPOINTMENT]: 'Book Appointment',
   [ROUTES.CONFIRM_BOOKING]: 'Confirm Booking',
   [ROUTES.FAVORITES]: 'Favorites',
-  [ROUTES.COUNSELOR_PROFILE]: 'Counselor Profile',
+  [ROUTES.COUNSELOR_PROFILE]: '',
 };
 
-// Helper function to get screen title
-export const getScreenTitle = (routeName) => {
-  return SCREEN_TITLES[routeName] || routeName;
-};
 
 // Helper to check if screen should show header
 export const shouldShowHeader = (routeName) => {

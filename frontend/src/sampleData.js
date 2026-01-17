@@ -361,3 +361,54 @@ export const sampleChats = [
     lastActive: new Date(Date.now() - 172800000)
   },
 ]
+
+
+// Move constants outside component to prevent recreation
+export const sampleCouncelors = [
+  {
+    id: 'counselor_1',
+    avatar: IMAGES.ProfileAvatar,
+    name: 'Ben Smith',
+    tag: 'Self Growth',
+    speciality: ['Anxiety', 'Stress', 'Depression'],
+    rating: 4.5,
+    rate: 30,
+  },
+  {
+    id: 'counselor_2',
+    avatar: IMAGES.ProfileAvatar,
+    name: 'Gwen Taylor',
+    tag: 'Health & Fitness',
+    speciality: ['Relationship', 'Career'],
+    rating: 4.8,
+    rate: 45,
+  },
+  {
+    id: 'counselor_3',
+    avatar: IMAGES.ProfileAvatar,
+    name: 'Kevin Hart',
+    tag: 'Motivation',
+    speciality: ['Relationship', 'Career', 'Motivation', 'Self Growth'],
+    rating: 4.9,
+    rate: 35,
+  },
+  {
+    id: 'counselor_4',
+    avatar: IMAGES.ProfileAvatar,
+    name: 'Sarah Wilson',
+    tag: 'Relationships',
+    speciality: ['Stress', 'Depression', 'Relationship', 'Career', 'Motivation', 'Self Growth'],
+    rating: 4.7,
+    rate: 40,
+  },
+];
+
+
+export const sampleCategories = [
+  { id: 'cat_1', name: 'Anxiety', icon: 'heart' },
+  { id: 'cat_2', name: 'Stress', icon: 'fitness' },
+  { id: 'cat_3', name: 'Career', icon: 'briefcase' },
+  { id: 'cat_4', name: 'Relationships', icon: 'people' },
+  { id: 'cat_5', name: 'Motivation', icon: 'rocket' },
+  { id: 'cat_6', name: 'Self Growth', icon: 'trending-up' },
+];
