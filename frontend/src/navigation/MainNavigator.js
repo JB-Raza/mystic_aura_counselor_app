@@ -1,84 +1,34 @@
-import { Loader, TopHeader } from '@/components';
+import { TopHeader } from '@/components';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { lazy, Suspense } from 'react';
 import { ROUTES, SCREEN_TITLES, shouldShowHeader } from '@/constants/routes';
 
 import SplashScreen from '@/screens/Splash';
-
 import Landing from '@/screens/Landing';
-const LoginScreen = lazy(() => import('@/screens/auth/Login'));
-const ForgetPassword = lazy(() => import('@/screens/auth/ForgetPassword'));
-const IntroScreen = lazy(() => import('@/screens/general/IntroScreen'));
-const NotificationScreen = lazy(() => import('@/screens/main/NotificationScreen'));
-const SearchScreen = lazy(() => import('@/screens/general/SearchScreen'));
+import LoginScreen from '@/screens/auth/Login';
+import ForgetPassword from '@/screens/auth/ForgetPassword';
+import IntroScreen from '@/screens/general/IntroScreen';
+import NotificationScreen from '@/screens/main/NotificationScreen';
+import SearchScreen from '@/screens/general/SearchScreen';
 
 // user side
-const EditProfile = lazy(() => import('@/screens/userSide/EditProfile'), 4000);
-const BookApointment = lazy(() => import('@/screens/userSide/BookApointment'));
-const ConfirmBooking = lazy(() => import('@/screens/userSide/ConfirmBooking'));
-const FavoritesScreen = lazy(() => import('@/screens/userSide/Favorites'));
+import EditProfile from '@/screens/userSide/EditProfile';
+import BookApointment from '@/screens/userSide/BookApointment';
+import ConfirmBooking from '@/screens/userSide/ConfirmBooking';
+import FavoritesScreen from '@/screens/userSide/Favorites';
 // counsellor side
-const CouncelorProfile = lazy(() => import('@/screens/councelorSide/CouncelorProfile'));
+import CouncelorProfile from '@/screens/councelorSide/CouncelorProfile';
 
 // general screens
-const AppearanceScreen = lazy(() => import('@/screens/general/Appearance'));
-const HelpAndSupportScreen = lazy(() => import('@/screens/general/Help&Support'));
-const AboutMysticAuraScreen = lazy(() => import('@/screens/general/AboutMysticAura'));
-const AddCoins = lazy(() => import('@/screens/general/AddCoins'));
-const WithdrawCoins = lazy(() => import('@/screens/general/WithdrawCoins'));
-const ChatScreen = lazy(() => import('@/screens/general/ChatScreen'));
+import AppearanceScreen from '@/screens/general/Appearance';
+import HelpAndSupportScreen from '@/screens/general/Help&Support';
+import AboutMysticAuraScreen from '@/screens/general/AboutMysticAura';
+import AddCoins from '@/screens/general/AddCoins';
+import WithdrawCoins from '@/screens/general/WithdrawCoins';
+import ChatScreen from '@/screens/general/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 
 const screenTitles = SCREEN_TITLES;
-
-const LazyScreenWrapper = ({ LazyComponent, route, navigation, ...props }) => {
-  return (
-    <Suspense fallback={<Loader />}>
-      <LazyComponent route={route} navigation={navigation} {...props} />
-    </Suspense>
-  );
-};
-
-// Create wrapper components outside render to avoid inline functions
-const LoginScreenWrapper = (props) => <LazyScreenWrapper LazyComponent={LoginScreen} {...props} />;
-const ForgetPasswordWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={ForgetPassword} {...props} />
-);
-const IntroScreenWrapper = (props) => <LazyScreenWrapper LazyComponent={IntroScreen} {...props} />;
-const NotificationScreenWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={NotificationScreen} {...props} />
-);
-const SearchScreenWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={SearchScreen} {...props} />
-);
-const AppearanceScreenWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={AppearanceScreen} {...props} />
-);
-const HelpAndSupportScreenWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={HelpAndSupportScreen} {...props} />
-);
-const AboutMysticAuraScreenWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={AboutMysticAuraScreen} {...props} />
-);
-const AddCoinsWrapper = (props) => <LazyScreenWrapper LazyComponent={AddCoins} {...props} />;
-const WithdrawCoinsWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={WithdrawCoins} {...props} />
-);
-const ChatScreenWrapper = (props) => <LazyScreenWrapper LazyComponent={ChatScreen} {...props} />;
-const EditProfileWrapper = (props) => <LazyScreenWrapper LazyComponent={EditProfile} {...props} />;
-const BookApointmentWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={BookApointment} {...props} />
-);
-const ConfirmBookingWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={ConfirmBooking} {...props} />
-);
-const FavoritesScreenWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={FavoritesScreen} {...props} />
-);
-const CouncelorProfileWrapper = (props) => (
-  <LazyScreenWrapper LazyComponent={CouncelorProfile} {...props} />
-);
 
 export default function MainNavigator() {
   return (
@@ -94,25 +44,25 @@ export default function MainNavigator() {
       })}>
       <Stack.Screen name={ROUTES.SPLASH} component={SplashScreen} />
       <Stack.Screen name={ROUTES.LANDING} component={Landing} />
-      <Stack.Screen name={ROUTES.LOGIN} component={LoginScreenWrapper} />
-      <Stack.Screen name={ROUTES.FORGET_PASSWORD} component={ForgetPasswordWrapper} />
-      <Stack.Screen name={ROUTES.INTRO} component={IntroScreenWrapper} />
-      <Stack.Screen name={ROUTES.NOTIFICATIONS} component={NotificationScreenWrapper} />
+      <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
+      <Stack.Screen name={ROUTES.FORGET_PASSWORD} component={ForgetPassword} />
+      <Stack.Screen name={ROUTES.INTRO} component={IntroScreen} />
+      <Stack.Screen name={ROUTES.NOTIFICATIONS} component={NotificationScreen} />
       {/* general screens */}
-      <Stack.Screen name={ROUTES.APPEARANCE} component={AppearanceScreenWrapper} />
-      <Stack.Screen name={ROUTES.HELP_AND_SUPPORT} component={HelpAndSupportScreenWrapper} />
-      <Stack.Screen name={ROUTES.ABOUT_MYSTIC_AURA} component={AboutMysticAuraScreenWrapper} />
-      <Stack.Screen name={ROUTES.ADD_COINS} component={AddCoinsWrapper} />
-      <Stack.Screen name={ROUTES.WITHDRAW_COINS} component={WithdrawCoinsWrapper} />
-      <Stack.Screen name={ROUTES.CHAT_SCREEN} component={ChatScreenWrapper} />
-      <Stack.Screen name={ROUTES.SEARCH_SCREEN} component={SearchScreenWrapper} />
+      <Stack.Screen name={ROUTES.APPEARANCE} component={AppearanceScreen} />
+      <Stack.Screen name={ROUTES.HELP_AND_SUPPORT} component={HelpAndSupportScreen} />
+      <Stack.Screen name={ROUTES.ABOUT_MYSTIC_AURA} component={AboutMysticAuraScreen} />
+      <Stack.Screen name={ROUTES.ADD_COINS} component={AddCoins} />
+      <Stack.Screen name={ROUTES.WITHDRAW_COINS} component={WithdrawCoins} />
+      <Stack.Screen name={ROUTES.CHAT_SCREEN} component={ChatScreen} />
+      <Stack.Screen name={ROUTES.SEARCH_SCREEN} component={SearchScreen} />
       {/* user part */}
-      <Stack.Screen name={ROUTES.EDIT_PROFILE} component={EditProfileWrapper} />
-      <Stack.Screen name={ROUTES.BOOK_APPOINTMENT} component={BookApointmentWrapper} />
-      <Stack.Screen name={ROUTES.CONFIRM_BOOKING} component={ConfirmBookingWrapper} />
-      <Stack.Screen name={ROUTES.FAVORITES} component={FavoritesScreenWrapper} />
+      <Stack.Screen name={ROUTES.EDIT_PROFILE} component={EditProfile} />
+      <Stack.Screen name={ROUTES.BOOK_APPOINTMENT} component={BookApointment} />
+      <Stack.Screen name={ROUTES.CONFIRM_BOOKING} component={ConfirmBooking} />
+      <Stack.Screen name={ROUTES.FAVORITES} component={FavoritesScreen} />
       {/* councelor part */}
-      <Stack.Screen name={ROUTES.COUNSELOR_PROFILE} component={CouncelorProfileWrapper} />
+      <Stack.Screen name={ROUTES.COUNSELOR_PROFILE} component={CouncelorProfile} />
     </Stack.Navigator>
   );
-}
+}``

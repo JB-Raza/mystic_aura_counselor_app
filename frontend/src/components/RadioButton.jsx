@@ -1,14 +1,17 @@
 import { COLORS } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, View, Text } from 'react-native';
 
 export default function RadioButton({ selected=null, onPress, label }) {
+    const [isPressed, setIsPressed] = useState(false);
+
     return (
-        <TouchableOpacity
+        <Pressable
             className="w-full"
             onPress={onPress}
-            activeOpacity={0.7}
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
         >
             <View
                 className={`px-4 py-3 rounded-xl flex-row gap-2 items-center justify-center ${
@@ -16,7 +19,12 @@ export default function RadioButton({ selected=null, onPress, label }) {
                         ? 'bg-themeColor' 
                         : 'bg-gray-100 border border-gray-200'
                 }`}
-                style={selected ? { backgroundColor: COLORS.themeColor } : {}}
+                style={[
+                    isPressed && {
+                        opacity: 0.7,
+                        transform: [{ scale: 0.98 }],
+                    }
+                ]}
             >
                 {selected && (
                     <Ionicons 
@@ -33,6 +41,7 @@ export default function RadioButton({ selected=null, onPress, label }) {
                     {label}
                 </Text>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     );
 }
+

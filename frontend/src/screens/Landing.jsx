@@ -5,7 +5,7 @@ import HomeScreen from './main/HomeScreen'
 import UserProfile from './userSide/UserProfile'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants/theme'
-import { MyBookingsScreen } from '.'
+import MyBookingsScreen from '@/screens/userSide/MyBookings'
 import AllChatsScreen from './general/AllChatsScreen'
 
 const Tab = createBottomTabNavigator()

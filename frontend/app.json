@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mysticAura",
-    "slug": "mysticaura",
+    "name": "Mystic Aura",
+    "slug": "mysticaura-jraza",
     "version": "1.0.0",
     "web": {
       "favicon": "./assets/icon.jpg"
@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/images/transparent.png",
       "resizeMode": "cover",
-      "backgroundColor": "transparent"
+      "backgroundColor": "#00000000"
     },
     "experiments": {
       "tsconfigPaths": true
@@ -27,13 +27,19 @@
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.mysticaura"
+      "package": "com.jraza.mysticaura"
     },
+    "owner": "jraza",
     "extra": {
       "eas": {
-        "projectId": "5305ab5b-050d-4d5d-93d0-ba76ee19639b"
+        "projectId": "cb3c1757-98b7-4a9f-af87-e00d91ffc611"
       }
     },
-    "owner": "jraza"
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cb3c1757-98b7-4a9f-af87-e00d91ffc611"
+    }
   }
 }
